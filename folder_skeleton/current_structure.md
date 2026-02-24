@@ -1,0 +1,133 @@
+edu_assistant/
+├── .env
+├── remove_system.bat
+├── start_all.bat
+└── __Init__.py
+├── .vscode/
+│   └── settings.json
+├── backend/
+│   ├── auth_server.py
+│   ├── config.py
+│   ├── database.py
+│   ├── Dockerfile
+│   ├── main_chatbot_multiple.py
+│   ├── main_data_ops.py
+│   ├── requirements.txt
+│   └── __Init__.py
+│   ├── data_ops/
+│   │   └── __init__.py
+│   ├── embedding/
+│   │   ├── embedding_factory.py
+│   │   └── __init__.py
+│   ├── guidelines/
+│   │   ├── greetings.py
+│   │   ├── ldc_flow.md
+│   │   ├── ldc_workflows.py
+│   │   ├── ncb_flows.py
+│   │   └── __init__.py
+│   ├── parlant-data/
+│   │   ├── cache_embeddings.json
+│   │   ├── evaluation_cache.json
+│   │   └── parlant.log
+│   ├── rag_process/
+│   │   ├── download_embedding.py
+│   │   ├── ldc_hybrid_qdrant.py
+│   │   ├── ldc_upload_mongodb.py
+│   │   ├── qdrant_management.py
+│   │   └── __init__.py
+│   ├── routers/
+│   │   ├── data_ops_router.py
+│   │   ├── kb_router.py
+│   │   └── __init__.py
+│   ├── services/
+│   │   ├── gemini_service.py
+│   │   ├── loggers.py
+│   │   └── __init__.py
+│   ├── sql_syntax/
+│   │   ├── init_multiple_dbs.sql
+│   │   └── __init__.py
+│   ├── tools/
+│   │   ├── find_id.py
+│   │   ├── import_reference.py
+│   │   ├── ldc_tools.py
+│   │   ├── legal_tools.py
+│   │   ├── list_qdrant_collections.py
+│   │   ├── manual_delete.py
+│   │   └── __init__.py
+│   ├── user_managment/
+│   │   ├── create_user.py
+│   │   └── __init__.py
+├── docker_compose/
+│   ├── docker-compose.backend.gpu.yml
+│   ├── docker-compose.backend.yml
+│   ├── docker-compose.infra.yml
+│   ├── docker-compose.ui.yml
+│   ├── docker_command.md
+│   └── management.yaml
+├── folder_skeleton/
+│   ├── 20260220_file_structure.md
+│   ├── current_structure.md
+│   ├── folder_skeleton.py
+│   └── new_structure.md
+├── frontend/
+│   ├── .env
+│   ├── .gitignore
+│   ├── dockerfile
+│   ├── eslint.config.js
+│   ├── index.html
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── postcss.config.js
+│   ├── README.md
+│   ├── tailwind.config.js
+│   └── vite.config.js
+│   ├── public/
+│   │   └── vite.svg
+│   ├── src/
+│   │   ├── api.js
+│   │   ├── App.css
+│   │   ├── App.jsx
+│   │   ├── config.js
+│   │   ├── index.css
+│   │   └── main.jsx
+│   │   ├── assets/
+│   │   │   └── react.svg
+│   │   ├── components/
+│   │   │   ├── ChatInput.jsx
+│   │   │   ├── ChatInterface.jsx
+│   │   │   ├── chatMessage.jsx
+│   │   │   └── IconSend.jsx
+│   │   ├── context/
+│   │   │   └── AuthContext.jsx
+│   │   ├── layouts/
+│   │   │   └── MainLayout.jsx
+│   │   ├── pages/
+│   │   │   ├── DiscoverPage.jsx
+│   │   │   ├── HomePage.jsx
+│   │   │   ├── LoginPage.jsx
+│   │   │   ├── LoginPage_google.jsx
+│   │   │   └── VideoPlayer.jsx
+│   │   │   ├── datacourse/
+│   │   │   │   ├── IntroductionPage.jsx
+│   │   │   │   └── SqlCoursePage.jsx
+├── official_ui/
+│   ├── dockerfile
+│   ├── index.html
+│   ├── package.json
+│   └── vite.config.js
+│   ├── src/
+│   │   ├── App.jsx
+│   │   ├── index.css
+│   │   └── main.jsx
+├── store/
+│   └── App.jsx
+│   ├── with_parlant_chat_react/
+│   │   └── App.jsx
+│   ├── with_parlant_client/
+│   │   ├── api.js
+│   │   └── App_pclient.jsx
+├── upload_service/
+│   ├── Dockerfile
+│   ├── main.py
+│   ├── requirements.txt
+│   └── __init__.py

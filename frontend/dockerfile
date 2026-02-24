@@ -1,0 +1,25 @@
+# Use the Long Term Support (LTS) version of Node (Node 24 is 'Active LTS')
+FROM node:24-alpine
+
+WORKDIR /app
+
+# ✅ REQUIRED: Install Git so npm can download 'parlant-client' from GitHub
+RUN apk add --no-cache git
+
+# Copy package files first to leverage Docker caching
+COPY package*.json ./
+
+# Disable SSL strictness (Optional: Keep only if you have network issues)
+RUN npm config set strict-ssl false
+
+# Install dependencies (This will now succeed because Git is installed)
+RUN npm install
+
+# Copy source code
+COPY . .
+
+# Expose Vite default port
+EXPOSE 5173
+
+# Start Vite ensuring it listens on all interfaces (0.0.0.0)
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]

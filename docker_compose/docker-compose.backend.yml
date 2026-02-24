@@ -1,0 +1,114 @@
+version: '3.8'
+
+services:
+  # -----------------------------------------------------------------
+  # 1. CHATBOT SERVICE (Python/Parlant) - Port 8802
+  # -----------------------------------------------------------------
+  chatbot:
+    container_name: chatbot_backend
+    build: ../backend
+    ports:
+      - "8802:8802"
+    volumes:
+      - ../backend:/app/backend
+      # ✅ Mounts Host 'E:/llm_data' to Container '/llm_data'
+      - E:/llm_data:/llm_data
+      - ../.env:/app/backend/.env
+    env_file:
+      - ../.env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONPATH=/app
+      - QDRANT_HOST=qdrant_db
+      - MONGO_HOST=mongo_db
+      
+      # ✅ FIXED: Force Linux paths inside Docker
+      # (Docker sees '/llm_data', NOT 'E:/llm_data')
+      - DATA_INPUT_ROOT=/llm_data/chatbot_data/input
+      - DEFAULT_NETWORK_PATH=/llm_data/chatbot_data/input
+      - ADHOC_FILE_PATH=/llm_data/chatbot_data/sgl_data
+      - MAPPING_FILE_PATH=/llm_data/chatbot_data/sgl_data/Mapping.xlsx
+      - LDC_FILE_PATH=/llm_data/chatbot_data/ldc_data/Data_SKRRHD.xlsx 
+      - LEGAL_FILE_PATH=/llm_data/chatbot_data/legal_data/legaldocument.xlsx
+
+    networks:
+      - app_shared_bridge
+    working_dir: /app/backend
+    command: watchmedo auto-restart --recursive --pattern="*.py" --directory="." -- python main_chatbot_multiple.py
+
+  # -----------------------------------------------------------------
+  # 2. AUTH SERVER (FastAPI) - Port 8000
+  # -----------------------------------------------------------------
+  auth:
+    container_name: auth_server
+    build: ../backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../backend:/app/backend
+      - ../.env:/app/backend/.env
+    env_file:
+      - ../.env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONPATH=/app
+      - DB_HOST=mysql_db
+    networks:
+      - app_shared_bridge
+    working_dir: /app/backend
+    command: watchmedo auto-restart --recursive --pattern="*.py" --directory="." -- python auth_server.py
+
+  # -----------------------------------------------------------------
+  # 3. DATA OPS API (FastAPI) - Port 8801
+  # -----------------------------------------------------------------
+  data_ops:
+    container_name: data_ops_backend
+    build: ../backend
+    ports:
+      - "8801:8801"
+    volumes:
+      - ../backend:/app/backend
+      # ✅ Mounts Host 'E:/llm_data' to Container '/llm_data'
+      - E:/llm_data:/llm_data
+      - ../.env:/app/backend/.env
+    env_file:
+      - ../.env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONPATH=/app
+      - DB_HOST=mysql_db
+      - MONGO_HOST=mongo_db
+      - SQL_HOST=risk_mssql
+
+      # ✅ FIXED: Force Linux paths for Data Ops too
+      - DATA_INPUT_ROOT=/llm_data/chatbot_data/input
+      - DEFAULT_NETWORK_PATH=/llm_data/chatbot_data/input
+      - ADHOC_FILE_PATH=/llm_data/chatbot_data/sgl_data
+      - MAPPING_FILE_PATH=/llm_data/chatbot_data/sgl_data/Mapping.xlsx
+      - LDC_FILE_PATH=/llm_data/chatbot_data/ldc_data/Data_SKRRHD.xlsx 
+      - LEGAL_FILE_PATH=/llm_data/chatbot_data/legal_data/legaldocument.xlsx
+
+    networks:
+      - app_shared_bridge
+    working_dir: /app/backend
+    command: uvicorn main_data_ops:app --host 0.0.0.0 --port 8801 --reload
+
+  # -----------------------------------------------------------------
+  # 4. FILE UPLOAD SERVICE (MinIO/FastAPI) - Port 8005
+  # -----------------------------------------------------------------
+  upload_service:
+    container_name: chatbot_upload_service
+    build: ../upload_service
+    ports:
+      - "8005:8000"
+    env_file:
+      - ../.env
+    environment:
+      - MINIO_ENDPOINT=minio:9000
+      - UPLOAD_MONGO_URI=${UPLOAD_MONGO_URI}
+    networks:
+      - app_shared_bridge
+
+networks:
+  app_shared_bridge:
+    external: true

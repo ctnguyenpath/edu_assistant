@@ -1,0 +1,230 @@
+{
+  "guideline_evaluations_3.2.0": [
+    {
+      "id": "e10517d8274c0df00de84dcc69eb6c98",
+      "creation_utc": "2026-02-22T14:12:33.946405+00:00",
+      "version": "3.2.0",
+      "properties": {
+        "continuous": false,
+        "customer_dependent_action_data": {
+          "is_customer_dependent": true,
+          "customer_action": "The customer provides the following details: Mô tả sự cố, bộ phận bạn đang làm việc, chi nhánh bạn đang làm việc, và ngày phát sinh sự cố.",
+          "agent_action": "The agent asks for the following details: Mô tả sự cố, bộ phận bạn đang làm việc, chi nhánh bạn đang làm việc, và ngày phát sinh sự cố."
+        },
+        "agent_intention_condition": "You are likely to ask for details to report a risk, incident, or issue manually",
+        "internal_action": null
+      }
+    },
+    {
+      "id": "4142183af39d8287184aa962f093b888",
+      "creation_utc": "2026-02-22T14:12:34.448388+00:00",
+      "version": "3.2.0",
+      "properties": {
+        "continuous": false,
+        "customer_dependent_action_data": {
+          "is_customer_dependent": true,
+          "customer_action": "The customer provides a response to the agent's offer of assistance.",
+          "agent_action": "The agent outputs the exact text: 'Mình là 'LDC Assistant', trợ lý của Khối Quản Trị Rủi Ro trong ngân hàng NCB. Mình giúp gì được cho bạn hôm nay?'"
+        },
+        "agent_intention_condition": null,
+        "internal_action": null
+      }
+    },
+    {
+      "id": "1c7f34a3df440b908162389cfb9f0052",
+      "creation_utc": "2026-02-22T14:12:34.448679+00:00",
+      "version": "3.2.0",
+      "properties": {
+        "continuous": false,
+        "customer_dependent_action_data": {
+          "is_customer_dependent": true,
+          "customer_action": "The customer indicates which item they want reviewed or asks for other assistance.",
+          "agent_action": "The agent outputs the exact text providing an overview of the NCB Risk Management Division and asks the customer if they want a detailed review of any item or other assistance."
+        },
+        "agent_intention_condition": null,
+        "internal_action": null
+      }
+    },
+    {
+      "id": "e234c790d15148b1dd191c9ec59ad513",
+      "creation_utc": "2026-02-22T14:12:34.449146+00:00",
+      "version": "3.2.0",
+      "properties": {
+        "continuous": false,
+        "customer_dependent_action_data": {
+          "is_customer_dependent": false,
+          "customer_action": "",
+          "agent_action": ""
+        },
+        "agent_intention_condition": null,
+        "internal_action": null
+      }
+    },
+    {
+      "id": "ab057e46d3e3ab5aff30f8ab7c028acf",
+      "creation_utc": "2026-02-22T14:12:34.947838+00:00",
+      "version": "3.2.0",
+      "properties": {
+        "continuous": false,
+        "customer_dependent_action_data": {
+          "is_customer_dependent": true,
+          "customer_action": "The customer indicates how they want to start.",
+          "agent_action": "The agent outputs the exact text: 'Mình là 'LDC Assistant', trợ lý của Khối Quản Trị Rủi Ro trong ngân hàng NCB. Mình có thể giúp bạn báo cáo sự cố. Bạn có thể gửi thông báo từng sự cố riêng lẻ hoặc bằng file excel tổng hợp. Bạn muốn bắt đầu bằng cách nào?'"
+        },
+        "agent_intention_condition": null,
+        "internal_action": null
+      }
+    },
+    {
+      "id": "8491c0a224aa1b104719bcb0b8674249",
+      "creation_utc": "2026-02-22T14:12:35.452155+00:00",
+      "version": "3.2.0",
+      "properties": {
+        "continuous": false,
+        "customer_dependent_action_data": {
+          "is_customer_dependent": true,
+          "customer_action": "The customer provides the new incident information: detailed description, department and branch they work in, and the date the incident occurred.",
+          "agent_action": "The agent replies exactly: 'Vui lòng cung cấp thông tin sự cố mới: Mô tả chi tiết, Phòng ban và chi nhánh bạn làm việc và ngày sự cố xảy ra. Ví dụ:\nHồ sơ khách hàng thiếu sót thông tin, Phòng Giao dịch Hà Nội, ngày 20/05/2024'"
+        },
+        "agent_intention_condition": null,
+        "internal_action": null
+      }
+    },
+    {
+      "id": "55fe70fc5e64c5414c7564cb07791c9d",
+      "creation_utc": "2026-02-22T14:12:35.452621+00:00",
+      "version": "3.2.0",
+      "properties": {
+        "continuous": false,
+        "customer_dependent_action_data": {
+          "is_customer_dependent": true,
+          "customer_action": "The customer confirms whether they have completed the risk event report.",
+          "agent_action": "The agent replies exactly: 'Cám ơn bạn đã gửi lại file chỉnh sửa. Bạn đã hoàn thành việc báo cáo sự kiện rủi ro chưa?'"
+        },
+        "agent_intention_condition": null,
+        "internal_action": null
+      }
+    },
+    {
+      "id": "af19cf727e3f5cc4afb294e94eb0cb0b",
+      "creation_utc": "2026-02-22T14:12:35.452948+00:00",
+      "version": "3.2.0",
+      "properties": {
+        "continuous": false,
+        "customer_dependent_action_data": {
+          "is_customer_dependent": true,
+          "customer_action": "The customer provides their NCB email.",
+          "agent_action": "The agent replies exactly: 'Vui lòng cung cấp email NCB của bạn để hệ thống ghi nhận hồ sơ.'"
+        },
+        "agent_intention_condition": null,
+        "internal_action": null
+      }
+    },
+    {
+      "id": "facb6f605845ad425be8983a29247825",
+      "creation_utc": "2026-02-22T14:12:35.453270+00:00",
+      "version": "3.2.0",
+      "properties": {
+        "continuous": false,
+        "customer_dependent_action_data": {
+          "is_customer_dependent": true,
+          "customer_action": "The customer chooses a format for the summary.",
+          "agent_action": "The agent outputs the exact text: 'Oh, \nđó là một yêu cầu hay! Việc gộp tất cả thông tin sẽ giúp bạn có cái nhìn toàn cảnh và sâu sắc nhất về \"hệ sinh thái\" QTRR.\nĐể nội dung này trở nên sinh động và dễ tiếp nhận nhất, tôi đề xuất các định dạng sau:\n\n 📄 Một bài viết chi tiết.\n\n 📈 Một bộ slides báo cáo chuyên nghiệp.\n\n 🎬 Hoặc một video highlight trực quan.\nBạn muốn tôi triển khai theo hình thức nào?'"
+        },
+        "agent_intention_condition": null,
+        "internal_action": null
+      }
+    },
+    {
+      "id": "73a180ed59a657200a47447d9cb9fb8d",
+      "creation_utc": "2026-02-22T14:12:35.953046+00:00",
+      "version": "3.2.0",
+      "properties": {
+        "continuous": false,
+        "customer_dependent_action_data": {
+          "is_customer_dependent": true,
+          "customer_action": "The customer responds to the question 'B\n            ạn c\n            ó mu\n            ốn b\n            áo c\n            áo th\n            êm s\n            ự c\n            ố n\n            ào kh\n            ác kh\n            ông?'",
+          "agent_action": "The agent calls tool `update_incident_details_tool` and replies exactly: 'C\n            ám \n            ơn b\n            ạn \n            đ\n            ã cung c\n            ấp th\n            êm d\n            ữ li\n            ệu, s\n            ự c\n            ố \n            đ\n            ã \n            đ\n            ược ph\n            ân lo\n            ại l\n            ại th\n            ành c\n            ông. B\n            ạn c\n            ó mu\n            ốn b\n            áo c\n            áo th\n            êm s\n            ự c\n            ố n\n            ào kh\n            ác kh\n            ông?'"
+        },
+        "agent_intention_condition": null,
+        "internal_action": null
+      }
+    },
+    {
+      "id": "190195a4edcdb5980fd668a5723ab03b",
+      "creation_utc": "2026-02-22T14:12:35.953799+00:00",
+      "version": "3.2.0",
+      "properties": {
+        "continuous": false,
+        "customer_dependent_action_data": {
+          "is_customer_dependent": true,
+          "customer_action": "The customer indicates whether they want to report any other issues.",
+          "agent_action": "The agent calls the `analyze_uploaded_file_tool`, outputs the result with success and error row counts, and then asks the customer if they want to report any other issues. If there are errors, the agent also provides error details and a link to a detailed error file."
+        },
+        "agent_intention_condition": null,
+        "internal_action": null
+      }
+    },
+    {
+      "id": "a63639f5245c5e43ab0ed557d0207c19",
+      "creation_utc": "2026-02-22T14:15:40.503241+00:00",
+      "version": "3.2.0",
+      "properties": {
+        "continuous": false,
+        "customer_dependent_action_data": {
+          "is_customer_dependent": false,
+          "customer_action": "",
+          "agent_action": ""
+        },
+        "agent_intention_condition": null,
+        "internal_action": null
+      }
+    },
+    {
+      "id": "ef8695719852f2ead330f2686e4f00ca",
+      "creation_utc": "2026-02-22T14:16:27.769004+00:00",
+      "version": "3.2.0",
+      "properties": {
+        "continuous": false,
+        "customer_dependent_action_data": {
+          "is_customer_dependent": true,
+          "customer_action": "The customer either answers the agent's question about reporting another incident or provides more specific details about the current incident as requested.",
+          "agent_action": "The agent calls the `submit_single_incident_tool`, evaluates the matching rate, presents the incident summary and AI classification result, and then either asks the user if they want to report another incident or asks for more details, depending on the matching rate."
+        },
+        "agent_intention_condition": null,
+        "internal_action": null
+      }
+    },
+    {
+      "id": "819d10bda77cb635fc5fcb6021e8f63f",
+      "creation_utc": "2026-02-22T14:16:27.769370+00:00",
+      "version": "3.2.0",
+      "properties": {
+        "continuous": false,
+        "customer_dependent_action_data": {
+          "is_customer_dependent": false,
+          "customer_action": "",
+          "agent_action": ""
+        },
+        "agent_intention_condition": null,
+        "internal_action": null
+      }
+    },
+    {
+      "id": "2d67328dc1787e228a053c907f3754bb",
+      "creation_utc": "2026-02-22T14:16:34.782689+00:00",
+      "version": "3.2.0",
+      "properties": {
+        "continuous": false,
+        "customer_dependent_action_data": {
+          "is_customer_dependent": false,
+          "customer_action": "",
+          "agent_action": ""
+        },
+        "agent_intention_condition": null,
+        "internal_action": null
+      }
+    }
+  ],
+  "journey_evaluations_3.2.0": []
+}

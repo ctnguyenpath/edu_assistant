@@ -1,0 +1,18 @@
+services:
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: always
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      # MinIO uses 9000, so we use 9002 for Portainer to avoid conflicts
+      - "9002:9000" 
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - portainer_data:/data
+    networks:
+      - app_network
+
+volumes:
+  portainer_data:
