@@ -9,14 +9,14 @@ services:
       - "8802:8802"
     volumes:
       - ../backend:/app/backend
-      - E:/eduapp_data:/data
-      - E:/eduapp_data/models:/app/models
+      - ${EDU_DATA_PATH}:/data
+      - ${EDU_DATA_PATH}/models:/app/models
       - ../.env:/app/.env
     env_file:
       - ../.env
     environment:
       - PYTHONUNBUFFERED=1
-      - PYTHONPATH=/app
+      - PYTHONPATH=/app:/app/backend
       
       # --- UPDATED DATABASE HOSTNAMES & PORTS ---
       - MINIO_ENDPOINT=edu_minio:9004 
@@ -68,7 +68,7 @@ services:
       - ../.env
     environment:
       - PYTHONUNBUFFERED=1
-      - PYTHONPATH=/app
+      - PYTHONPATH=/app:/app/backend
       - DB_HOST=edu_postgres_db # Updated
       - DB_PORT=5435 
       - DB_TYPE=postgres
@@ -81,50 +81,31 @@ services:
   # 3. DATA OPS API (FastAPI)
   # -----------------------------------------------------------------
   data_ops:
-    container_name: edu_data_ops_backend # Updated
+    container_name: edu_data_ops_backend
     build: ../backend
     ports:
       - "8801:8801"
     volumes:
       - ../backend:/app/backend
-      - E:/eduapp_data:/data
-      - E:/eduapp_data/models:/app/models
+      - ${EDU_DATA_PATH}:/data
+      - ${EDU_DATA_PATH}/models:/app/models
       - ../.env:/app/.env
     env_file:
       - ../.env
     environment:
       - PYTHONUNBUFFERED=1
-      - PYTHONPATH=/app
+      - PYTHONPATH=/app:/app/backend
       
-      # --- UPDATED DATABASE HOSTNAMES & PORTS ---
+      # --- DATABASE CONFIG ---
       - DB_HOST=edu_postgres_db
       - DB_PORT=5435 
-      - SQL_HOST=edu_postgres_db
-      - SQL_PORT=5435 
       - MONGO_HOST=edu_mongo_db
       - MONGO_PORT=27020 
-
-      # --- NEW INTERNAL DATA PATHS ---
-      - VIDEO_CLIP_PATH=/data/video_clip
-      - RAW_INPUT_PATH=/data/raw_input
-      - OUTPUT_PATH=/data/output
-      - INPUT_PATH=/data/input
-
-      # GPU
-      - NVIDIA_VISIBLE_DEVICES=all
-      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
-
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
 
     networks:
       - edu_app_bridge 
     working_dir: /app/backend
+    # Points to the new main_data_ops.py file
     command: uvicorn main_data_ops:app --host 0.0.0.0 --port 8801 --reload
 
   # -----------------------------------------------------------------

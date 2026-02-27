@@ -2,13 +2,14 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { 
   Star, GripHorizontal, Network, RefreshCw, Undo2, ListPlus, 
   ChevronUp, X, Move, Trophy, LayoutDashboard, Map as MapIcon, 
-  ChevronRight, ChevronLeft, AlertCircle, TrendingUp 
+  ChevronLeft 
 } from 'lucide-react';
 import axios from 'axios';
 
 import ModuleDetailsPanel from '../../layouts/panelpage/ModuleDetailsPanel';
 import ModuleListPanel from '../../layouts/panelpage/ModuleListPanel';
 import ModuleDetailDashboard from "../../layouts/panelpage/ModuleDetailDashboard";
+import PerformancePanel from '../../layouts/panelpage/PerformancePanel';
 
 // Sidebar Collapsed State
 const CollapsedSidebar = ({ title, icon, onClick, isRightSide }) => (
@@ -64,36 +65,34 @@ const PathWay = () => {
   const isCustomizing = customNodes.length > 0;
 
   // --- 2. FETCH & PERSIST ---
+  const fetchData = async () => {
+    setLoadingData(true);
+    try {
+      // 1. Fetch Curriculum Structure
+      const curRes = await fetch('/data_ways_curriculum.json');
+      const curData = await curRes.json();
+      setSyllabusData(curData);
+
+      // 2. Fetch Student Scores from Postgres API (Hardcoded Student 1)
+      const perfRes = await axios.get('http://localhost:8801/api/student/1/performance');
+      setPerformanceData(perfRes.data);
+
+      const savedId = localStorage.getItem('dataways_activeLesson');
+      const initial = savedId !== null ? curData.find(l => l.lesson === parseInt(savedId)) || curData[0] : curData[0];
+      setActiveLesson(initial);
+    } catch (err) {
+      console.error("Failed to load initial data:", err);
+    } finally {
+      setLoadingData(false);
+    }
+  };
+
   useEffect(() => {
-    const initData = async () => {
-      try {
-        // 1. Fetch Curriculum Structure
-        const curRes = await fetch('/data_ways_curriculum.json');
-        const curData = await curRes.json();
-        setSyllabusData(curData);
-
-        // 2. Fetch Student Scores from Postgres API (Hardcoded Student 1)
-        const perfRes = await axios.get('http://localhost:8801/api/student/1/performance');
-        setPerformanceData(perfRes.data);
-
-        const savedId = localStorage.getItem('dataways_activeLesson');
-        const initial = savedId !== null ? curData.find(l => l.lesson === parseInt(savedId)) || curData[0] : curData[0];
-        setActiveLesson(initial);
-      } catch (err) {
-        console.error("Failed to load initial data:", err);
-      } finally {
-        setLoadingData(false);
-      }
-    };
-    initData();
+    fetchData();
   }, []);
 
   useEffect(() => { if (activeLesson) localStorage.setItem('dataways_activeLesson', activeLesson.lesson.toString()); }, [activeLesson]);
-  useEffect(() => { localStorage.setItem('dataways_panelHeight', topHeight.toString()); }, [topHeight]);
-  useEffect(() => { localStorage.setItem('dataways_listWidth', listPanelWidth.toString()); }, [listPanelWidth]);
-  useEffect(() => { localStorage.setItem('dataways_customNodes_v2', JSON.stringify(customNodes)); }, [customNodes]);
 
-  // --- 3. HELPERS ---
   const getScoreColor = (label) => {
     if (label === 'Excellence') return 'border-emerald-500 text-emerald-500 bg-emerald-500/10 shadow-[0_0_15px_rgba(16,185,129,0.3)]';
     if (label === 'Good') return 'border-blue-500 text-blue-500 bg-blue-500/10';
@@ -285,18 +284,53 @@ const PathWay = () => {
       {/* --- LEFT SIDEBAR --- */}
       {openPanels.list ? (
         <div style={{ width: `${listPanelWidth}px` }} className={`shrink-0 h-full border-r border-[#333] flex flex-col bg-[#0c0c0d] relative z-20 ${isResizingList ? '' : 'transition-[width] duration-300'}`}>
-          <ModuleListPanel syllabusData={syllabusData} customPath={customPathIds} handleDragStart={handleDragStart} onClose={() => setOpenPanels(p => ({...p, list: false}))} />
+          
+          {/* 1. Module List (Takes remaining space) */}
+          <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
+            <ModuleListPanel 
+              syllabusData={syllabusData} 
+              customPath={customPathIds} 
+              handleDragStart={handleDragStart} 
+              onClose={() => setOpenPanels(p => ({...p, list: false}))} 
+              onSelectModule={setActiveLesson}
+            />
+          </div>
+
+          {/* 2. Performance Section (Collapsible at bottom) */}
+          <PerformancePanel 
+            isOpen={openPanels.performance} 
+            onToggle={() => setOpenPanels(p => ({...p, performance: !p.performance}))}
+            activeLesson={activeLesson}
+            currentPerf={currentPerf}
+            getScoreColor={getScoreColor}
+          />
+
           <div onMouseDown={(e) => { setIsResizingList(true); e.preventDefault(); }} className="absolute top-0 right-[-4px] w-2 h-full cursor-col-resize hover:bg-blue-500/50 transition-colors z-50" />
         </div>
       ) : (
         <CollapsedSidebar title="Curriculum Modules" icon={<ListPlus size={20}/>} onClick={() => setOpenPanels(p => ({...p, list: true}))} />
       )}
-
-      {/* --- MAIN WORKSPACE --- */}
       <div className="flex-1 flex flex-col h-full bg-[#131314] relative z-10 min-w-0">
         
         {/* TOP NAV OVERLAY: View Mode Toggle */}
         <div className="absolute top-6 right-6 z-50 flex gap-3">
+          {isCustomizing && (
+            <button 
+              onClick={clearCustomPath}
+              className="flex items-center gap-2 px-4 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 rounded-xl text-xs font-bold transition-all shadow-xl"
+            >
+              <Undo2 size={14} /> Reset Map
+            </button>
+          )}
+
+          <button 
+            onClick={fetchData}
+            className="flex items-center gap-2 px-4 py-2.5 bg-[#1E1F20] hover:bg-[#333] text-gray-200 border border-[#333] rounded-xl text-xs font-bold transition-all shadow-xl"
+            title="Refresh Data"
+          >
+            <RefreshCw size={14} className={loadingData ? "animate-spin" : ""} />
+          </button>
+
           <button 
             onClick={() => setViewMode(viewMode === 'canvas' ? 'dashboard' : 'canvas')}
             className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all shadow-xl"
@@ -383,57 +417,6 @@ const PathWay = () => {
           </div>
         )}
       </div>
-
-      {/* --- RIGHT SIDEBAR: Minimizable Score Summary --- */}
-      {openPanels.performance ? (
-        <div className="w-80 shrink-0 h-full border-l border-[#333] flex flex-col bg-[#0c0c0d] relative z-20 transition-all duration-300">
-          <div className="p-6 border-b border-[#333] flex justify-between items-center bg-[#131314]">
-             <h2 className="text-gray-100 font-bold text-sm tracking-widest uppercase flex items-center gap-2">
-                <Trophy size={16} className="text-yellow-500"/> Performance
-             </h2>
-             <button onClick={() => setOpenPanels(p => ({...p, performance: false}))} className="text-gray-500 hover:text-white transition-colors">
-                <ChevronRight size={20}/>
-             </button>
-          </div>
-          
-          <div className="flex-1 overflow-y-auto p-6 space-y-8 scrollbar-thin scrollbar-thumb-[#333]">
-             {/* Selected Module Summary */}
-             <div className="bg-[#1E1F20] p-6 rounded-2xl border border-[#333] shadow-inner">
-                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Current Focus</p>
-                <h3 className="text-white font-bold text-sm mb-5 truncate">{activeLesson.topic}</h3>
-                <div className="flex items-baseline gap-2">
-                   <span className="text-6xl font-black text-white">{currentPerf?.score_value ?? '--'}</span>
-                   <span className="text-gray-600 font-bold text-xl">/ 10</span>
-                </div>
-                <div className={`mt-5 text-[10px] font-bold px-3 py-1.5 rounded-lg border inline-block uppercase tracking-wider ${getScoreColor(currentPerf?.grade_label)}`}>
-                   {currentPerf?.grade_label || 'NOT STARTED'}
-                </div>
-             </div>
-
-             {/* Failing Alert */}
-             {currentPerf?.score_value !== null && currentPerf?.score_value < 5 && (
-               <div className="bg-red-900/10 border border-red-500/20 p-5 rounded-2xl flex gap-3 animate-pulse">
-                  <AlertCircle className="text-red-500 shrink-0" size={18}/>
-                  <p className="text-[11px] text-red-200 leading-tight font-medium">Below proficiency threshold. We recommend re-taking the module quizzes.</p>
-               </div>
-             )}
-
-             {/* Global Progress */}
-             <div className="space-y-5">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-gray-400 text-xs font-bold uppercase tracking-widest">Path Completion</h4>
-                  <TrendingUp size={16} className="text-blue-500"/>
-                </div>
-                <div className="w-full bg-[#1E1F20] h-2.5 rounded-full overflow-hidden border border-[#333]">
-                  <div className="bg-blue-600 h-full w-[70%] shadow-[0_0_15px_rgba(37,99,235,0.4)] transition-all duration-1000"></div>
-                </div>
-                <p className="text-[10px] text-gray-500 font-bold uppercase tracking-tighter">14 of 20 Modules Mastered</p>
-             </div>
-          </div>
-        </div>
-      ) : (
-        <CollapsedSidebar title="Score Summary" icon={<Trophy size={20}/>} onClick={() => setOpenPanels(p => ({...p, performance: true}))} isRightSide={true} />
-      )}
 
     </div>
   );
