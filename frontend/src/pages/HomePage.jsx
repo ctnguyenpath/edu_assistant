@@ -76,6 +76,47 @@ const HomePage = ({ onPlayVideo, videos = [] }) => {
     fetchCurriculum();
   }, []);
 
+  // --- RESTORE SELECTIONS FROM LOCAL STORAGE ---
+  useEffect(() => {
+    // Only try to restore after the program groups have successfully loaded
+    if (programGroups.length > 0) {
+      const savedSelections = localStorage.getItem('homepage_selections');
+      if (savedSelections) {
+        try {
+          const { groupId, programIds } = JSON.parse(savedSelections);
+          setSelectedGroup(groupId);
+          
+          // Match the saved IDs back to the actual program objects
+          const restoredPrograms = [];
+          programGroups.forEach(group => {
+            if (group.groupId === groupId) {
+              group.programs.forEach(prog => {
+                if (programIds.includes(prog.id)) {
+                  restoredPrograms.push(prog);
+                }
+              });
+            }
+          });
+          
+          setSelectedPrograms(restoredPrograms);
+        } catch (e) {
+          console.error("Failed to restore homepage selections", e);
+        }
+      }
+    }
+  }, [programGroups]);
+
+  // --- SAVE SELECTIONS TO LOCAL STORAGE ---
+  useEffect(() => {
+    // Don't save during the initial loading phase so we don't accidentally overwrite with empty data
+    if (!isLoading) {
+      localStorage.setItem('homepage_selections', JSON.stringify({
+        groupId: selectedGroup,
+        programIds: selectedPrograms.map(p => p.id)
+      }));
+    }
+  }, [selectedGroup, selectedPrograms, isLoading]);
+
   // --- SELECTION LOGIC ---
   const handleToggleProgram = (program, groupId) => {
     // 1. Enforce the "Same Group" rule
@@ -111,7 +152,6 @@ const HomePage = ({ onPlayVideo, videos = [] }) => {
       modules: allSelectedModuleIds 
     }));
     
-    // --- UPDATED NAVIGATION ---
     // Directs to the discover/ folder as per new skeleton
     navigate('/discover/pathway');
   };
@@ -120,7 +160,7 @@ const HomePage = ({ onPlayVideo, videos = [] }) => {
     <div className="relative p-8 overflow-y-auto h-full bg-gray-50 dark:bg-[#0A0A0A] transition-colors duration-300 pb-32">
       
       {/* --- HERO / ONBOARDING HEADER --- */}
-      <div className="mb-12 bg-white dark:bg-[#1E1F20] rounded-2xl p-8 border border-gray-200 dark:border-gray-800 shadow-sm">
+      <div className="mb-12 bg-white dark:bg-[#1E1F20] rounded-2xl p-8 border border-gray-200 dark:border-[#333] shadow-sm">
         <h1 className="text-4xl font-medium text-gray-900 dark:text-gray-100 mb-4 transition-colors duration-300">
           Design your learning journey
         </h1>
@@ -129,12 +169,11 @@ const HomePage = ({ onPlayVideo, videos = [] }) => {
         </p>
         <div className="mt-6">
           <button 
-            // --- UPDATED NAVIGATION ---
-            // Directs to the program/ folder as per new skeleton
-            onClick={() => navigate('/program/introduction')}
+            // Fixed the 404 error by pointing this to the dashboard instead of the deleted introduction page
+            onClick={() => navigate('/program/dashboard')}
             className="text-blue-600 dark:text-blue-400 font-medium hover:underline flex items-center gap-2"
           >
-            <BookOpen className="w-4 h-4" /> View Program Introduction Videos
+            <BookOpen className="w-4 h-4" /> View My Dashboard
           </button>
         </div>
       </div>
@@ -169,7 +208,7 @@ const HomePage = ({ onPlayVideo, videos = [] }) => {
                         ${isSelected 
                           ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-md transform -translate-y-1' 
                           : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-[#161718] hover:border-blue-300 dark:hover:border-blue-700 hover:-translate-y-1'}
-                        ${isDisabled ? 'opacity-50 cursor-not-allowed grayscale-[50%] hover:transform-none hover:border-gray-200' : ''}
+                        ${isDisabled ? 'opacity-50 cursor-not-allowed grayscale-[50%] hover:transform-none hover:border-gray-200 dark:hover:border-[#333]' : ''}
                       `}
                     >
                       <div className="flex justify-between items-start mb-4">
@@ -223,7 +262,7 @@ const HomePage = ({ onPlayVideo, videos = [] }) => {
 
       {/* --- EXISTING VIDEO SECTION --- */}
       {videos && videos.length > 0 && (
-        <div className="pt-8 border-t border-gray-200 dark:border-gray-800 mt-8">
+        <div className="pt-8 border-t border-gray-200 dark:border-[#333] mt-8">
           <h2 className="text-xl text-gray-800 dark:text-gray-200 mb-6 font-medium transition-colors duration-300">
             Available in {BUCKET_NAME}
           </h2>
@@ -233,7 +272,7 @@ const HomePage = ({ onPlayVideo, videos = [] }) => {
               <div 
                 key={clip.filename} 
                 onClick={() => onPlayVideo(clip)} 
-                className="group bg-white dark:bg-[#1E1F20] border border-gray-200 dark:border-gray-800 rounded-2xl overflow-hidden hover:ring-2 hover:ring-blue-500/30 dark:hover:ring-gray-600 transition-all cursor-pointer shadow-sm dark:shadow-none"
+                className="group bg-white dark:bg-[#1E1F20] border border-gray-200 dark:border-[#333] rounded-2xl overflow-hidden hover:ring-2 hover:ring-blue-500/30 dark:hover:ring-gray-600 transition-all cursor-pointer shadow-sm dark:shadow-none"
               >
                 <div className="h-40 bg-gray-200 dark:bg-gray-800 relative flex items-center justify-center transition-colors duration-300">
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 dark:from-black/60 to-transparent"></div>

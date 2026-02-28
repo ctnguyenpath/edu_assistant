@@ -20,11 +20,10 @@ import HomePage from './pages/HomePage';
 import DiscoverPage from './pages/DiscoverPage';
 import VideoPlayer from './pages/VideoPlayer';
 
-// --- UPDATED PAGE IMPORTS (New Skeleton) ---
-// IntroductionPage moved to pages/program/
-import IntroductionPage from './pages/program/IntroductionPage'; 
-// PathWay moved to pages/discover/
+// --- UPDATED PAGE IMPORTS ---
 import PathWay from './pages/discover/PathWay'; 
+import ModuleLayout from './pages/program/module_viewer/ModuleLayout';
+import ProgramDashboard from './pages/program/ProgramDashboard'; 
 
 // --- COMPONENTS ---
 import ChatInterface from './components/ChatInterface';
@@ -176,7 +175,7 @@ const App = () => {
           {/* 1. Login Page */}
           <Route path="/login" element={<LoginPage />} />
 
-          {/* 2. Main App Layout */}
+          {/* 2. Main App Layout (Has standard Sidebar) */}
           <Route element={<MainLayout />}>
             <Route path="/" element={
               <HomePage 
@@ -194,12 +193,14 @@ const App = () => {
               />
             } />
 
-            {/* --- UPDATED SEMANTIC ROUTES (New Skeleton) --- */}
-            {/* Introduction grouped under /program/ */}
-            <Route path="/program/introduction" element={<IntroductionPage chatProps={chatProps} />} />
-            
-            {/* Pathway Map grouped under /discover/ */}
             <Route path="/discover/pathway" element={<PathWay chatProps={chatProps} />} />
+
+            {/* --- PROGRAM DASHBOARD --- */}
+            <Route path="/program/dashboard" element={
+              <ProtectedRoute>
+                <ProgramDashboard />
+              </ProtectedRoute>
+            } />
 
             {/* PROTECTED PAGES */}
             <Route path="/chat" element={
@@ -216,8 +217,16 @@ const App = () => {
 
           </Route>
 
-          {/* 3. Video Player */}
+          {/* 3. Full-Screen Pages (No standard Sidebar) */}
           <Route path="/watch/:filename" element={<VideoPlayer />} />
+
+          {/* --- MODULE VIEWER --- */}
+          {/* Placed outside MainLayout so the video player and syllabus sidebar take up the full screen */}
+          <Route path="/program/module/:moduleId" element={
+            <ProtectedRoute>
+              <ModuleLayout />
+            </ProtectedRoute>
+          } />
 
         </Routes>
       </AuthProvider>

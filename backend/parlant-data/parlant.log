@@ -439,3 +439,27 @@
 [2m2026-02-28T09:22:31.934701Z[0m [[32m[1minfo     [0m] [1m[<main>] Server authorization policy: development[0m
 [2m2026-02-28T09:22:31.935472Z[0m [[32m[1minfo     [0m] [1m[<main>] Try the Sandbox UI at http://localhost:8802[0m
 [2m2026-02-28T09:22:31.958362Z[0m [[32m[1minfo     [0m] [1m[<main>] Server is ready to accept requests.[0m
+[2m2026-02-28T13:53:24.004037Z[0m [[32m[1minfo     [0m] [1m[<main>] BackgroundTaskService: Cancelling all remaining tasks (1)[0m
+[2m2026-02-28T13:53:24.090191Z[0m [[32m[1minfo     [0m] [1m[<main>] BackgroundTaskService: Shutting down[0m
+[2m2026-02-28T13:55:55.160716Z[0m [[32m[1minfo     [0m] [1m[<__main__.NoOp object at 0x7f3f79457230>] Initialized GeminiService[0m
+[2m2026-02-28T13:55:55.161696Z[0m [[32m[1minfo     [0m] [1m[<main>] Parlant server version 3.2.0[0m
+[2m2026-02-28T13:55:55.162198Z[0m [[32m[1minfo     [0m] [1m[<main>] Using home directory '/app/backend/parlant-data'[0m
+[2m2026-02-28T13:55:55.167136Z[0m [[32m[1minfo     [0m] [1m[<main>] No external modules selected[0m
+[2m2026-02-28T13:56:04.122581Z[0m [[32m[1minfo     [0m] [1m[<main>] .-----------------------------------------.[0m
+[2m2026-02-28T13:56:04.125476Z[0m [[32m[1minfo     [0m] [1m[<main>] | Server is ready for some serious action |[0m
+[2m2026-02-28T13:56:04.126009Z[0m [[32m[1minfo     [0m] [1m[<main>] '-----------------------------------------'[0m
+[2m2026-02-28T13:56:04.126540Z[0m [[32m[1minfo     [0m] [1m[<main>] Server authorization policy: development[0m
+[2m2026-02-28T13:56:04.127088Z[0m [[32m[1minfo     [0m] [1m[<main>] Try the Sandbox UI at http://localhost:8802[0m
+[2m2026-02-28T13:56:04.167657Z[0m [[32m[1minfo     [0m] [1m[<main>] Server is ready to accept requests.[0m
+[2m2026-02-28T14:18:26.569396Z[0m [[32m[1minfo     [0m] [1m[<main>] BackgroundTaskService: Cancelling all remaining tasks (1)[0m
+[2m2026-02-28T14:18:26.578684Z[0m [[32m[1minfo     [0m] [1m[<main>] BackgroundTaskService: Shutting down[0m
+[2m2026-02-28T14:20:28.532149Z[0m [[32m[1minfo     [0m] [1m[<__main__.NoOp object at 0x7f907874b230>] Initialized GeminiService[0m
+[2m2026-02-28T14:20:28.533357Z[0m [[32m[1minfo     [0m] [1m[<main>] Parlant server version 3.2.0[0m
+[2m2026-02-28T14:20:28.533976Z[0m [[32m[1minfo     [0m] [1m[<main>] Using home directory '/app/backend/parlant-data'[0m
+[2m2026-02-28T14:20:28.539060Z[0m [[32m[1minfo     [0m] [1m[<main>] No external modules selected[0m
+[2m2026-02-28T14:20:36.534519Z[0m [[32m[1minfo     [0m] [1m[<main>] .-----------------------------------------.[0m
+[2m2026-02-28T14:20:36.537301Z[0m [[32m[1minfo     [0m] [1m[<main>] | Server is ready for some serious action |[0m
+[2m2026-02-28T14:20:36.537811Z[0m [[32m[1minfo     [0m] [1m[<main>] '-----------------------------------------'[0m
+[2m2026-02-28T14:20:36.538253Z[0m [[32m[1minfo     [0m] [1m[<main>] Server authorization policy: development[0m
+[2m2026-02-28T14:20:36.538665Z[0m [[32m[1minfo     [0m] [1m[<main>] Try the Sandbox UI at http://localhost:8802[0m
+[2m2026-02-28T14:20:36.557140Z[0m [[32m[1minfo     [0m] [1m[<main>] Server is ready to accept requests.[0m

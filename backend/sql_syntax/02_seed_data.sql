@@ -1,28 +1,34 @@
+-- 02_seed_data.sql
 -- Connect to the database
 \c course_management
 
 -- ==============================================================================
 -- 1. SEED STUDENTS (Student Schema)
 -- ==============================================================================
-INSERT INTO student.students (full_name, email) 
+-- Inserted with default password '12345678' for testing login functionality.
+-- Username for login will be the email.
+INSERT INTO student.students (full_name, email, password) 
 VALUES 
-    ('Main Student', 'student@example.com'),
-    ('Jane Doe', 'jane.doe@example.com')
-ON CONFLICT (email) DO NOTHING;
+    ('Main Student', 'student@example.com', '12345678'),
+    ('Jane Doe', 'jane.doe@example.com', '12345678')
+ON CONFLICT (email) DO UPDATE 
+SET password = EXCLUDED.password;
 
 -- ==============================================================================
 -- 2. SEED MODULES (Courses Schema)
 -- ==============================================================================
 -- Changed from student.modules to courses.modules
-INSERT INTO courses.modules (module_id, track, topic_name) VALUES 
-(1, 'Foundation', 'Python Basics'),
-(2, 'Foundation', 'SQL Fundamentals'),
-(3, 'Foundation', 'Statistics 101'),
-(4, 'Data Engineering', 'ETL Pipeline Design'),
-(5, 'Data Engineering', 'Distributed Computing (Spark)'),
-(6, 'Data Analysis', 'Data Visualization (Tableau)'),
-(7, 'Data Analysis', 'Exploratory Data Analysis (EDA)'),
-(8, 'Advanced', 'Machine Learning Models')
+INSERT INTO courses.modules (module_id, track, topic_name) VALUES
+(1, 'Core Foundation', 'Python Programming'),
+(2, 'Core Foundation', 'Relational Databases (SQL)'),
+(3, 'Core Foundation', 'Domain Knowledge & Soft Skills'),
+(4, 'Data Analytics', 'Data Analysis & Viz'),
+(5, 'Data Analytics', 'Prediction & ML'),
+(6, 'Data Analytics', 'Application of LLMs'),
+(7, 'Data Engineering', 'Data Modeling & Storage'),
+(8, 'Data Engineering', 'Pipelines & Orchestration'),
+(9, 'Data Engineering', 'Big Data & Streaming'),
+(10, 'Data Engineering', 'Governance & MLOps')
 ON CONFLICT (module_id) DO NOTHING;
 
 -- ==============================================================================
