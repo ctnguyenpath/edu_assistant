@@ -38,7 +38,7 @@ stop_system() {
     docker compose --env-file "$ENV_FILE" -f "$COMPOSE_DIR/docker-compose.ui.yml" -p edu_ui down --remove-orphans 2>/dev/null
 
     echo "[2/6] Removing Backend Layer..."
-    docker compose --env-file "$ENV_FILE" -f "$COMPOSE_DIR/docker-compose.backend.gpu.yml" -p edu_backend down --remove-orphans 2>/dev/null
+    docker compose --env-file "$ENV_FILE" -f "$COMPOSE_DIR/docker-compose.backend.yml" -p edu_backend down --remove-orphans 2>/dev/null
 
     echo "[3/6] Removing Infrastructure Layer (Databases)..."
     docker compose --env-file "$ENV_FILE" -f "$COMPOSE_DIR/docker-compose.infra.yml" -p edu_infra down --remove-orphans 2>/dev/null
