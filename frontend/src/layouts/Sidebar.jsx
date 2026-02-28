@@ -22,7 +22,7 @@ const Sidebar = () => {
 
   // Define the navigation routes based on App.jsx
   const navItems = [
-    { path: '/', label: 'Dashboard', icon: <Home size={20} /> },
+    { path: '/', label: 'Home', icon: <Home size={20} /> },
     { 
       path: '/discover', 
       label: 'Discover', 

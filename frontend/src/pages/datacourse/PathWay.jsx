@@ -33,6 +33,9 @@ const PathWay = () => {
   const tempLineRef = useRef(null);
 
   // --- 1. STATE ---
+  // MOCK AUTH STATE: In a real app, replace this with your AuthContext or Redux state
+  const [isLoggedIn, setIsLoggedIn] = useState(false); 
+
   const [syllabusData, setSyllabusData] = useState([]);
   const [performanceData, setPerformanceData] = useState([]);
   const [loadingData, setLoadingData] = useState(true);
@@ -63,12 +66,34 @@ const PathWay = () => {
   const customPathIds = useMemo(() => customNodes.map(n => n.id), [customNodes]);
   const isCustomizing = customNodes.length > 0;
 
-  // Save custom nodes whenever they change
+  // Save custom nodes locally so edits survive a page refresh
   useEffect(() => {
     localStorage.setItem('dataways_customNodes_v2', JSON.stringify(customNodes));
   }, [customNodes]);
 
-  // --- 2. FETCH DATA ---
+  // --- 2. INITIALIZE FROM HOMEPAGE SELECTIONS ---
+  useEffect(() => {
+    const pendingStr = localStorage.getItem('pending_pathway');
+    if (pendingStr) {
+      try {
+        const pendingData = JSON.parse(pendingStr);
+        // If the user selected modules on the homepage, and the canvas is empty, auto-generate a suggested map!
+        if (pendingData.modules && pendingData.modules.length > 0 && customNodes.length === 0) {
+          const suggestedNodes = pendingData.modules.map((id, index) => ({
+            id,
+            x: 150 + (index % 3) * 280, // Stagger them nicely
+            y: 250 + Math.floor(index / 3) * 160,
+            parentIds: index > 0 ? [pendingData.modules[index - 1]] : ['START'] // Auto-link them linearly
+          }));
+          setCustomNodes(suggestedNodes);
+        }
+      } catch (e) {
+        console.error("Error parsing pending pathway", e);
+      }
+    }
+  }, [customNodes.length]);
+
+  // --- 3. FETCH DATA ---
   const fetchData = async () => {
     setLoadingData(true);
     try {
@@ -92,6 +117,41 @@ const PathWay = () => {
   useEffect(() => { fetchData(); }, []);
   useEffect(() => { if (activeLesson) localStorage.setItem('dataways_activeLesson', activeLesson.lesson.toString()); }, [activeLesson]);
 
+  // --- 4. SAVE PATHWAY TO DATABASE ---
+  const handleConfirmPath = async () => {
+    try {
+      let connectionsMade = 0;
+      
+      // Loop through all custom nodes and save their relationships
+      for (const node of customNodes) {
+        const parents = node.parentIds || [];
+        for (const parentId of parents) {
+          if (parentId !== 'START') {
+            await axios.post('http://localhost:8801/api/student/1/path/connect', {
+              source_module_id: parentId,
+              target_module_id: node.id
+            });
+            connectionsMade++;
+          }
+        }
+      }
+
+      if (connectionsMade === 0) {
+        alert("Please draw at least one connection line between modules before confirming!");
+        return;
+      }
+
+      alert("Success! Your learning pathway has been saved to your account.");
+      localStorage.removeItem('pending_pathway'); // Clear the pending state
+      fetchData(); // Refresh to pull standard DB state if needed
+      
+    } catch (err) {
+      console.error("Failed to save path:", err);
+      alert("Error saving pathway. Please check your connection.");
+    }
+  };
+
+
   const getScoreColor = (label) => {
     if (label === 'Excellence') return 'border-emerald-500 text-emerald-500 bg-emerald-500/10 shadow-[0_0_15px_rgba(16,185,129,0.3)]';
     if (label === 'Good') return 'border-blue-500 text-blue-500 bg-blue-500/10';
@@ -102,8 +162,6 @@ const PathWay = () => {
 
   const currentPerf = performanceData.find(p => p.module_id === activeLesson?.lesson);
 
-  // --- MERGE DATA FOR DASHBOARD ---
-  // Combines static syllabus (always exists) with dynamic performance (might be empty)
   const dashboardData = useMemo(() => {
     if (!syllabusData.length) return [];
     return syllabusData.map(mod => {
@@ -118,7 +176,7 @@ const PathWay = () => {
     });
   }, [syllabusData, performanceData]);
 
-  // --- 4. HTML5 DRAG & DROP LOGIC ---
+  // --- 5. HTML5 DRAG & DROP LOGIC ---
   const handleDragStart = (e, lessonId) => {
     e.dataTransfer.setData('lessonId', lessonId.toString());
     e.dataTransfer.effectAllowed = 'copyMove';
@@ -173,9 +231,14 @@ const PathWay = () => {
     });
   };
 
-  const clearCustomPath = () => { if (window.confirm("Are you sure you want to clear your custom path?")) setCustomNodes([]); };
+  const clearCustomPath = () => { 
+    if (window.confirm("Are you sure you want to clear your custom path?")) {
+      setCustomNodes([]);
+      localStorage.removeItem('pending_pathway');
+    }
+  };
 
-  // --- 5. LINE DRAWING & MULTI-CONNECTION LOGIC ---
+  // --- 6. LINE DRAWING & MULTI-CONNECTION LOGIC ---
   const handleConnectorMouseDown = (e, sourceId, x, y) => { e.stopPropagation(); setDrawingConnection({ sourceId, startX: x, startY: y }); };
   
   const handleMapMouseMove = (e) => {
@@ -243,7 +306,7 @@ const PathWay = () => {
     }));
   };
 
-  // --- 6. RESIZER LOGIC ---
+  // --- 7. RESIZER LOGIC ---
   const handleHeightMouseDown = (e) => { setIsDraggingHeight(true); e.preventDefault(); };
   useEffect(() => {
     const handleMouseMove = (e) => {
@@ -263,7 +326,7 @@ const PathWay = () => {
     return () => { document.removeEventListener('mousemove', handleMouseMove); document.removeEventListener('mouseup', handleMouseUp); };
   }, [isDraggingHeight, isResizingList]);
 
-  // --- 7. MAP LOGIC ---
+  // --- 8. MAP LOGIC ---
   const getDefaultMapCoordinates = (col = 0, row = 0) => ({ x: 150 + (col * 280), y: 250 + (row * 160) });
   const mapBounds = useMemo(() => {
     if (isCustomizing) {
@@ -318,7 +381,7 @@ const PathWay = () => {
       }).filter(Boolean)
     : syllabusData;
 
-  // --- 8. RENDER ---
+  // --- 9. RENDER ---
   if (loadingData || !activeLesson) {
     return (
       <div className="flex flex-col items-center justify-center h-full w-full bg-white dark:bg-[#0A0A0A] text-blue-500 transition-colors duration-300">
@@ -333,13 +396,9 @@ const PathWay = () => {
       
       <style>{`
         .course-map-scroll::-webkit-scrollbar { height: 12px; width: 12px; }
-        
-        /* Dark Mode Scrollbars & Backgrounds */
         .dark .course-map-scroll::-webkit-scrollbar-track { background: #131314; }
         .dark .course-map-scroll::-webkit-scrollbar-thumb { background-color: #333; border-radius: 20px; border: 3px solid #131314; }
         .dark .bg-grid-pattern { background-size: 50px 50px; background-image: radial-gradient(circle, #222 1px, transparent 1px); }
-        
-        /* Light Mode Scrollbars & Backgrounds */
         .course-map-scroll::-webkit-scrollbar-track { background: #f9fafb; }
         .course-map-scroll::-webkit-scrollbar-thumb { background-color: #d1d5db; border-radius: 20px; border: 3px solid #f9fafb; }
         .bg-grid-pattern { background-size: 50px 50px; background-image: radial-gradient(circle, #e5e7eb 1px, transparent 1px); }
@@ -373,7 +432,16 @@ const PathWay = () => {
       <div className="flex-1 flex flex-col h-full bg-gray-50 dark:bg-[#131314] relative z-10 min-w-0 transition-colors duration-300">
         
         {/* TOP NAV OVERLAY */}
-        <div className="absolute top-6 right-6 z-50 flex gap-3">
+        <div className="absolute top-6 right-6 z-50 flex gap-3 items-center">
+          
+          {/* MOCK AUTH TOGGLE FOR TESTING */}
+          <button 
+            onClick={() => setIsLoggedIn(!isLoggedIn)} 
+            className={`px-3 py-1.5 rounded-md text-xs font-bold border ${isLoggedIn ? 'bg-green-100 text-green-700 border-green-300' : 'bg-gray-200 text-gray-600 border-gray-300'}`}
+          >
+            {isLoggedIn ? 'Test Mode: Logged In' : 'Test Mode: Guest'}
+          </button>
+
           {isCustomizing && (
             <button 
               onClick={clearCustomPath}
@@ -406,7 +474,42 @@ const PathWay = () => {
              <ModuleDetailDashboard data={dashboardData} />
           </div>
         ) : (
-          <div className="flex flex-col h-full overflow-hidden">
+          <div className="flex flex-col h-full overflow-hidden relative">
+            
+            {/* --- ONBOARDING & CONFIRMATION BANNER --- */}
+            {isCustomizing && (
+              <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-50 flex flex-col items-center animate-fade-in-up">
+                {!isLoggedIn ? (
+                  <div className="bg-white dark:bg-[#1E1F20] border border-blue-200 dark:border-blue-900 shadow-2xl rounded-2xl p-4 flex items-center gap-6">
+                    <div className="flex flex-col">
+                      <span className="text-gray-900 dark:text-white font-bold">Unsaved Pathway</span>
+                      <span className="text-gray-500 text-sm">Create an account to save your learning journey.</span>
+                    </div>
+                    <button 
+                      // In your real app, this should be: navigate('/login?redirect=/pathway')
+                      onClick={() => setIsLoggedIn(true)} 
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-bold transition-colors whitespace-nowrap shadow-lg shadow-blue-500/30"
+                    >
+                      Login to Save
+                    </button>
+                  </div>
+                ) : (
+                  <div className="bg-white dark:bg-[#1E1F20] border border-green-200 dark:border-green-900 shadow-2xl rounded-2xl p-4 flex items-center gap-6">
+                    <div className="flex flex-col">
+                      <span className="text-gray-900 dark:text-white font-bold">Review Your Path</span>
+                      <span className="text-gray-500 text-sm">Draw connections between modules, then confirm.</span>
+                    </div>
+                    <button 
+                      onClick={handleConfirmPath} 
+                      className="bg-green-600 hover:bg-green-700 text-white px-6 py-2.5 rounded-xl font-bold transition-colors whitespace-nowrap shadow-lg shadow-green-500/30"
+                    >
+                      Confirm Expected Path
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* 1. MAP VIEW */}
             <div style={{ height: openPanels.details ? `${topHeight}%` : '100%' }} className="relative flex-shrink-0 z-10 flex flex-col min-h-[200px] transition-all duration-300">
               <div className="absolute top-0 left-0 p-6 flex items-center gap-4 z-30 pointer-events-none">

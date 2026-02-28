@@ -1,23 +1,8 @@
 [
   {
     "lesson": 1,
-    "topic": "Choose Your Path",
-    "type": "Overview",
-    "typeColor": "bg-blue-500/20 text-blue-400 border-blue-500/30",
-    "contents": [
-      "Path A: The Detective (Data Analyst / Scientist) - Answer 'Why did this happen?'",
-      "Path B: The Builder (Data Engineer) - Answer 'How do we get this data from A to B safely?'"
-    ],
-    "levels": null,
-    "whyWeLearn": "Before writing a single line of code, ask yourself: How do I like to solve problems?",
-    "col": 0,
-    "row": 0,
-    "connectsTo": [2]
-  },
-  {
-    "lesson": 2,
-    "topic": "Python Programming",
-    "type": "Core Foundation",
+    "topic": "Core Foundation: Python Programming",
+    "type": "Adult Group",
     "typeColor": "bg-purple-500/20 text-purple-400 border-purple-500/30",
     "levels": [
       { "level": "Junior", "desc": "Variables, loops, functions, Pandas. Ex: Scripting daily stock price downloads." },
@@ -25,14 +10,14 @@
       { "level": "Expert", "desc": "Code optimization, CI/CD, distributed computing. Ex: Standardizing a bank's Python codebase." }
     ],
     "whyWeLearn": "The foundational programming language for modern data and AI work.",
-    "col": 1,
+    "col": 0,
     "row": 0,
-    "connectsTo": [3]
+    "connectsTo": [2, 3]
   },
   {
-    "lesson": 3,
-    "topic": "Relational Databases (SQL)",
-    "type": "Core Foundation",
+    "lesson": 2,
+    "topic": "Core Foundation: Relational Databases (SQL)",
+    "type": "Adult Group",
     "typeColor": "bg-purple-500/20 text-purple-400 border-purple-500/30",
     "levels": [
       { "level": "Junior", "desc": "SELECT, WHERE, JOIN, GROUP BY. Ex: Finding all customers who deposited >$10k this week." },
@@ -40,14 +25,14 @@
       { "level": "Expert", "desc": "Query optimization, indexing. Ex: Tuning a query that scans 50 million transaction rows." }
     ],
     "whyWeLearn": "The ability to store, extract, and transform massive amounts of financial records.",
-    "col": 2,
+    "col": 1,
     "row": 0,
-    "connectsTo": [4]
+    "connectsTo": [4, 7]
   },
   {
-    "lesson": 4,
-    "topic": "Domain Knowledge & Soft Skills",
-    "type": "Core Foundation",
+    "lesson": 3,
+    "topic": "Core Foundation: Domain Knowledge & Soft Skills",
+    "type": "Adult Group",
     "typeColor": "bg-purple-500/20 text-purple-400 border-purple-500/30",
     "levels": [
       { "level": "Junior", "desc": "Basic banking terms (ROI, Churn, AML), asking clarifying questions." },
@@ -55,14 +40,14 @@
       { "level": "Expert", "desc": "Cross-departmental strategy, driving a data-first culture, C-Suite communication." }
     ],
     "whyWeLearn": "Data is completely useless if it doesn't solve a real business problem.",
-    "col": 3,
-    "row": 0,
-    "connectsTo": [5, 8]
+    "col": 0,
+    "row": 1,
+    "connectsTo": []
   },
   {
-    "lesson": 5,
-    "topic": "Data Analysis & Viz",
-    "type": "Track 1: Analytics",
+    "lesson": 4,
+    "topic": "Data Analytics: Data Analysis & Viz",
+    "type": "Adult Group",
     "typeColor": "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
     "levels": [
       { "level": "Junior", "desc": "Excel (Pivots), Tableau/PowerBI basics. Ex: Visualizing monthly loan application volumes." },
@@ -70,14 +55,14 @@
       { "level": "Expert", "desc": "Causal inference, Monte Carlo. Ex: Stress-testing capital reserves under market crash scenarios." }
     ],
     "whyWeLearn": "The ability to explore, clean, and visualize financial data to answer 'what happened?'",
-    "col": 4,
+    "col": 2,
     "row": -1,
-    "connectsTo": [6]
+    "connectsTo": [5]
   },
   {
-    "lesson": 6,
-    "topic": "Prediction & ML",
-    "type": "Track 1: Analytics",
+    "lesson": 5,
+    "topic": "Data Analytics: Prediction & ML",
+    "type": "Adult Group",
     "typeColor": "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
     "levels": [
       { "level": "Junior", "desc": "Linear/Logistic Regression. Ex: Predicting binary loan defaults (Yes/No)." },
@@ -85,14 +70,14 @@
       { "level": "Expert", "desc": "Deep Learning, Reinforcement Learning, SHAP. Ex: LSTMs for algorithmic high-frequency trading." }
     ],
     "whyWeLearn": "The ability to use historical data and math to answer 'what will happen next?'",
-    "col": 5,
+    "col": 3,
     "row": -1,
-    "connectsTo": [7]
+    "connectsTo": [6]
   },
   {
-    "lesson": 7,
-    "topic": "Application of LLMs",
-    "type": "Track 1: Analytics",
+    "lesson": 6,
+    "topic": "Data Analytics: Application of LLMs",
+    "type": "Adult Group",
     "typeColor": "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
     "levels": [
       { "level": "Junior", "desc": "Prompt engineering, coding assistants. Ex: Summarizing a 50-page central bank policy PDF." },
@@ -100,14 +85,14 @@
       { "level": "Expert", "desc": "Fine-tuning open-source models, multi-agent systems. Ex: Auditing employee emails for insider trading." }
     ],
     "whyWeLearn": "Using Generative AI to automate text analysis, accelerate coding, and improve decision-making.",
-    "col": 6,
+    "col": 4,
     "row": -1,
     "connectsTo": []
   },
   {
-    "lesson": 8,
-    "topic": "Data Modeling & Storage",
-    "type": "Track 2: Engineering",
+    "lesson": 7,
+    "topic": "Data Engineering: Data Modeling & Storage",
+    "type": "Adult Group",
     "typeColor": "bg-orange-500/20 text-orange-400 border-orange-500/30",
     "levels": [
       { "level": "Junior", "desc": "Primary/Foreign keys, structured vs unstructured. Ex: Designing a simple schema for user profiles." },
@@ -115,14 +100,14 @@
       { "level": "Expert", "desc": "Data Lakehouse (Databricks), distributed systems. Ex: Architecting storage for 10 yrs of stock ticks." }
     ],
     "whyWeLearn": "Understanding how to securely and efficiently structure massive datasets.",
-    "col": 4,
+    "col": 2,
     "row": 1,
-    "connectsTo": [9]
+    "connectsTo": [8]
   },
   {
-    "lesson": 9,
-    "topic": "Pipelines & Orchestration",
-    "type": "Track 2: Engineering",
+    "lesson": 8,
+    "topic": "Data Engineering: Pipelines & Orchestration",
+    "type": "Adult Group",
     "typeColor": "bg-orange-500/20 text-orange-400 border-orange-500/30",
     "levels": [
       { "level": "Junior", "desc": "Python scripts for ETL. Ex: Moving daily CSV reports from an SFTP server into SQL." },
@@ -130,14 +115,14 @@
       { "level": "Expert", "desc": "Infrastructure as Code, monitoring. Ex: Managing 500+ pipelines for a bank's entire reporting suite." }
     ],
     "whyWeLearn": "Automating the flow of data from messy raw sources into clean, usable tables.",
-    "col": 5,
+    "col": 3,
     "row": 1,
-    "connectsTo": [10]
+    "connectsTo": [9]
   },
   {
-    "lesson": 10,
-    "topic": "Big Data & Streaming",
-    "type": "Track 2: Engineering",
+    "lesson": 9,
+    "topic": "Data Engineering: Big Data & Streaming",
+    "type": "Adult Group",
     "typeColor": "bg-orange-500/20 text-orange-400 border-orange-500/30",
     "levels": [
       { "level": "Junior", "desc": "Batch vs Streaming concepts. Ex: Understanding nightly updates vs real-time processing." },
@@ -145,14 +130,14 @@
       { "level": "Expert", "desc": "Kafka, Spark, Flink. Ex: Real-time ingestion engine for thousands of credit card swipes per second." }
     ],
     "whyWeLearn": "Handling data that moves too fast or is too large for traditional databases.",
-    "col": 6,
+    "col": 4,
     "row": 1,
-    "connectsTo": [11]
+    "connectsTo": [10]
   },
   {
-    "lesson": 11,
-    "topic": "Governance & MLOps",
-    "type": "Track 2: Engineering",
+    "lesson": 10,
+    "topic": "Data Engineering: Governance & MLOps",
+    "type": "Adult Group",
     "typeColor": "bg-orange-500/20 text-orange-400 border-orange-500/30",
     "levels": [
       { "level": "Junior", "desc": "Basic PII masking and data privacy concepts." },
@@ -160,7 +145,7 @@
       { "level": "Expert", "desc": "CI/CD for data, compliance. Ex: Ensuring automated GDPR data deletion cascades across all tables." }
     ],
     "whyWeLearn": "Ensuring data is secure, AI models are reliable, and pipelines comply with strict financial regulations.",
-    "col": 7,
+    "col": 5,
     "row": 1,
     "connectsTo": []
   }
