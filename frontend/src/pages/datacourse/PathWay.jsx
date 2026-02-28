@@ -34,11 +34,11 @@ const PathWay = () => {
 
   // --- 1. STATE ---
   const [syllabusData, setSyllabusData] = useState([]);
-  const [performanceData, setPerformanceData] = useState([]); // NEW: Scores from Postgres
+  const [performanceData, setPerformanceData] = useState([]);
   const [loadingData, setLoadingData] = useState(true);
-  const [viewMode, setViewMode] = useState('canvas'); // NEW: 'canvas' or 'dashboard'
+  const [viewMode, setViewMode] = useState('canvas'); 
   const [activeLesson, setActiveLesson] = useState(null);
-  const [openPanels, setOpenPanels] = useState({ list: true, details: true, performance: true }); // Updated with performance
+  const [openPanels, setOpenPanels] = useState({ list: true, details: true, performance: true });
   
   const [customNodes, setCustomNodes] = useState(() => {
     const saved = localStorage.getItem('dataways_customNodes_v2');
@@ -59,21 +59,23 @@ const PathWay = () => {
     return saved !== null ? parseInt(saved, 10) : 320; 
   });
   const [isResizingList, setIsResizingList] = useState(false);
-  const [hoveredLesson, setHoveredLesson] = useState(null);
 
   const customPathIds = useMemo(() => customNodes.map(n => n.id), [customNodes]);
   const isCustomizing = customNodes.length > 0;
 
-  // --- 2. FETCH & PERSIST ---
+  // Save custom nodes whenever they change
+  useEffect(() => {
+    localStorage.setItem('dataways_customNodes_v2', JSON.stringify(customNodes));
+  }, [customNodes]);
+
+  // --- 2. FETCH DATA ---
   const fetchData = async () => {
     setLoadingData(true);
     try {
-      // 1. Fetch Curriculum Structure
       const curRes = await fetch('/data_ways_curriculum.json');
       const curData = await curRes.json();
       setSyllabusData(curData);
 
-      // 2. Fetch Student Scores from Postgres API (Hardcoded Student 1)
       const perfRes = await axios.get('http://localhost:8801/api/student/1/performance');
       setPerformanceData(perfRes.data);
 
@@ -87,10 +89,7 @@ const PathWay = () => {
     }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
+  useEffect(() => { fetchData(); }, []);
   useEffect(() => { if (activeLesson) localStorage.setItem('dataways_activeLesson', activeLesson.lesson.toString()); }, [activeLesson]);
 
   const getScoreColor = (label) => {
@@ -126,25 +125,39 @@ const PathWay = () => {
     const rect = mapContainerRef.current.getBoundingClientRect();
     const dropX = e.clientX - rect.left + mapContainerRef.current.scrollLeft;
     const dropY = e.clientY - rect.top + mapContainerRef.current.scrollTop;
+    
     setCustomNodes(prev => {
       const existingNode = prev.find(n => n.id === draggedLessonId);
       if (existingNode) return prev.map(n => n.id === draggedLessonId ? { ...n, x: dropX, y: dropY } : n);
+      
       let closestId = 'START';
       let minDistance = Math.hypot(dropX - 150, dropY - 250);
       prev.forEach(n => {
         const dist = Math.hypot(dropX - n.x, dropY - n.y);
         if (dist < minDistance) { minDistance = dist; closestId = n.id; }
       });
-      return [...prev, { id: draggedLessonId, x: dropX, y: dropY, parentId: closestId }];
+      
+      // Initialize with parentIds array instead of single parentId
+      return [...prev, { id: draggedLessonId, x: dropX, y: dropY, parentIds: [closestId] }];
     });
   };
 
+  // Upgraded Removal Logic to support arrays
   const removeCustomPathItem = (idToRemove) => {
     setCustomNodes(prev => {
       const nodeToRemove = prev.find(n => n.id === idToRemove);
       if(!nodeToRemove) return prev;
+      
       return prev.filter(n => n.id !== idToRemove).map(n => {
-         if (n.parentId === idToRemove) return { ...n, parentId: nodeToRemove.parentId };
+         const parents = n.parentIds || [];
+         if (parents.includes(idToRemove)) {
+            // Replace the removed parent with its parents (bridging the gap)
+            const newParents = new Set([
+              ...parents.filter(id => id !== idToRemove), 
+              ...(nodeToRemove.parentIds || [])
+            ]);
+            return { ...n, parentIds: Array.from(newParents) };
+         }
          return n;
       });
     });
@@ -152,8 +165,9 @@ const PathWay = () => {
 
   const clearCustomPath = () => { if (window.confirm("Are you sure you want to clear your custom path?")) setCustomNodes([]); };
 
-  // --- 5. LINE DRAWING & REMOVING LOGIC ---
+  // --- 5. LINE DRAWING & MULTI-CONNECTION LOGIC ---
   const handleConnectorMouseDown = (e, sourceId, x, y) => { e.stopPropagation(); setDrawingConnection({ sourceId, startX: x, startY: y }); };
+  
   const handleMapMouseMove = (e) => {
     if (drawingConnection && mapContainerRef.current && tempLineRef.current) {
       const rect = mapContainerRef.current.getBoundingClientRect();
@@ -173,26 +187,62 @@ const PathWay = () => {
     return () => window.removeEventListener('mouseup', handleGlobalMouseUp);
   }, [drawingConnection]);
 
+  // DFS Cycle Detection
+  const createsCycle = (startId, targetId, nodes) => {
+    if (startId === targetId) return true;
+    let visited = new Set();
+    let stack = [startId];
+    
+    while(stack.length > 0) {
+       let current = stack.pop();
+       if (current === targetId) return true;
+       if (!visited.has(current)) {
+          visited.add(current);
+          const currNode = nodes.find(n => n.id === current);
+          if (currNode && currNode.parentIds) {
+             stack.push(...currNode.parentIds);
+          }
+       }
+    }
+    return false;
+  };
+
   const handleNodeMouseUp = (e, targetId) => {
     if (drawingConnection) {
       e.stopPropagation();
       const sourceId = drawingConnection.sourceId;
+      
       if (sourceId !== targetId) {
-        let current = sourceId;
-        let isCycle = false;
-        while (current && current !== 'START') {
-          if (current === targetId) { isCycle = true; break; }
-          const node = customNodes.find(n => n.id === current);
-          current = node ? node.parentId : null;
+        const hasCycle = createsCycle(sourceId, targetId, customNodes);
+        
+        if (!hasCycle) {
+          setCustomNodes(prev => prev.map(n => {
+            if (n.id === targetId) {
+              const currentParents = n.parentIds || [];
+              // Add sourceId to parentIds array if it doesn't already exist
+              if (!currentParents.includes(sourceId)) {
+                return { ...n, parentIds: [...currentParents, sourceId] };
+              }
+            }
+            return n;
+          }));
+        } else {
+          alert("Circular dependency detected! A module cannot require itself.");
         }
-        if (!isCycle) setCustomNodes(prev => prev.map(n => n.id === targetId ? { ...n, parentId: sourceId } : n));
-        else alert("Circular dependency detected!");
       }
       setDrawingConnection(null);
     }
   };
 
-  const removeConnection = (childId) => setCustomNodes(prev => prev.map(n => n.id === childId ? { ...n, parentId: null } : n));
+  // Specific connection remover
+  const removeConnection = (childId, parentIdToRemove) => {
+    setCustomNodes(prev => prev.map(n => {
+      if (n.id === childId) {
+        return { ...n, parentIds: (n.parentIds || []).filter(pid => pid !== parentIdToRemove) };
+      }
+      return n;
+    }));
+  };
 
   // --- 6. RESIZER LOGIC ---
   const handleHeightMouseDown = (e) => { setIsDraggingHeight(true); e.preventDefault(); };
@@ -229,14 +279,23 @@ const PathWay = () => {
   const paths = useMemo(() => {
     if (!syllabusData.length) return [];
     let generatedPaths = [];
+    
     if (isCustomizing) {
       customNodes.forEach(node => {
-        if (!node.parentId) return; 
-        let start = node.parentId === 'START' ? { x: 150, y: 250 } : customNodes.find(n => n.id === node.parentId);
-        if (start) {
-          const cp1x = start.x + (node.x - start.x) / 2;
-          generatedPaths.push({ childId: node.id, pathData: `M ${start.x} ${start.y} C ${cp1x} ${start.y}, ${cp1x} ${node.y}, ${node.x} ${node.y}`, isCustom: true });
-        }
+        // Iterate through all parentIds to draw multiple incoming lines
+        const parents = node.parentIds || [];
+        parents.forEach(pId => {
+          let start = pId === 'START' ? { x: 150, y: 250 } : customNodes.find(n => n.id === pId);
+          if (start) {
+            const cp1x = start.x + (node.x - start.x) / 2;
+            generatedPaths.push({ 
+              childId: node.id, 
+              parentId: pId, 
+              pathData: `M ${start.x} ${start.y} C ${cp1x} ${start.y}, ${cp1x} ${node.y}, ${node.x} ${node.y}`, 
+              isCustom: true 
+            });
+          }
+        });
       });
     } else {
       syllabusData.forEach(lesson => {
@@ -246,7 +305,7 @@ const PathWay = () => {
             const current = getDefaultMapCoordinates(lesson.col, lesson.row);
             const targetCoord = getDefaultMapCoordinates(target.col, target.row);
             const cp1x = current.x + (targetCoord.x - current.x) / 2;
-            generatedPaths.push({ childId: targetId, pathData: `M ${current.x} ${current.y} C ${cp1x} ${current.y}, ${cp1x} ${targetCoord.y}, ${targetCoord.x} ${targetCoord.y}`, isCustom: false });
+            generatedPaths.push({ childId: targetId, parentId: lesson.lesson, pathData: `M ${current.x} ${current.y} C ${cp1x} ${current.y}, ${cp1x} ${targetCoord.y}, ${targetCoord.x} ${targetCoord.y}`, isCustom: false });
           }
         });
       });
@@ -284,8 +343,6 @@ const PathWay = () => {
       {/* --- LEFT SIDEBAR --- */}
       {openPanels.list ? (
         <div style={{ width: `${listPanelWidth}px` }} className={`shrink-0 h-full border-r border-[#333] flex flex-col bg-[#0c0c0d] relative z-20 ${isResizingList ? '' : 'transition-[width] duration-300'}`}>
-          
-          {/* 1. Module List (Takes remaining space) */}
           <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
             <ModuleListPanel 
               syllabusData={syllabusData} 
@@ -295,8 +352,6 @@ const PathWay = () => {
               onSelectModule={setActiveLesson}
             />
           </div>
-
-          {/* 2. Performance Section (Collapsible at bottom) */}
           <PerformancePanel 
             isOpen={openPanels.performance} 
             onToggle={() => setOpenPanels(p => ({...p, performance: !p.performance}))}
@@ -304,15 +359,15 @@ const PathWay = () => {
             currentPerf={currentPerf}
             getScoreColor={getScoreColor}
           />
-
           <div onMouseDown={(e) => { setIsResizingList(true); e.preventDefault(); }} className="absolute top-0 right-[-4px] w-2 h-full cursor-col-resize hover:bg-blue-500/50 transition-colors z-50" />
         </div>
       ) : (
         <CollapsedSidebar title="Curriculum Modules" icon={<ListPlus size={20}/>} onClick={() => setOpenPanels(p => ({...p, list: true}))} />
       )}
+      
       <div className="flex-1 flex flex-col h-full bg-[#131314] relative z-10 min-w-0">
         
-        {/* TOP NAV OVERLAY: View Mode Toggle */}
+        {/* TOP NAV OVERLAY */}
         <div className="absolute top-6 right-6 z-50 flex gap-3">
           {isCustomizing && (
             <button 
@@ -322,7 +377,6 @@ const PathWay = () => {
               <Undo2 size={14} /> Reset Map
             </button>
           )}
-
           <button 
             onClick={fetchData}
             className="flex items-center gap-2 px-4 py-2.5 bg-[#1E1F20] hover:bg-[#333] text-gray-200 border border-[#333] rounded-xl text-xs font-bold transition-all shadow-xl"
@@ -330,7 +384,6 @@ const PathWay = () => {
           >
             <RefreshCw size={14} className={loadingData ? "animate-spin" : ""} />
           </button>
-
           <button 
             onClick={() => setViewMode(viewMode === 'canvas' ? 'dashboard' : 'canvas')}
             className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all shadow-xl"
@@ -343,7 +396,6 @@ const PathWay = () => {
           </button>
         </div>
 
-        {/* CONDITIONAL RENDER: CANVAS MAP OR FULL DASHBOARD */}
         {viewMode === 'dashboard' ? (
           <div className="h-full w-full animate-fade-in bg-[#0c0c0d]">
              <ModuleDetailDashboard data={performanceData} />
@@ -368,14 +420,35 @@ const PathWay = () => {
                 onDragOver={handleMapDragOver} onDragLeave={handleMapDragLeave} onDrop={handleMapDrop} onMouseMove={handleMapMouseMove}
               >
                 <div className="relative z-10" style={{ width: `${mapBounds.width}px`, height: `${mapBounds.height}px`, minHeight: '100%' }}>
-                  <svg className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-visible">
+                  
+                  {/* PATHS SVG CONTAINER */}
+                  <svg className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-visible z-0">
                     {paths.map((p, i) => (
-                      <path key={i} d={p.pathData} fill="none" stroke={isCustomizing ? "#10b981" : "#3b82f6"} strokeWidth="3" strokeOpacity="0.3" strokeDasharray={p.isCustom ? "10 5" : "none"} />
+                      <g 
+                        key={i} 
+                        className={p.isCustom ? "pointer-events-auto cursor-pointer" : ""} 
+                        onClick={() => p.isCustom && removeConnection(p.childId, p.parentId)}
+                      >
+                        {/* Invisible thick path to make clicking easier */}
+                        {p.isCustom && (
+                          <path d={p.pathData} fill="none" stroke="transparent" strokeWidth="15" />
+                        )}
+                        {/* Visible Line */}
+                        <path 
+                          d={p.pathData} 
+                          fill="none" 
+                          stroke={isCustomizing ? "#10b981" : "#3b82f6"} 
+                          strokeWidth="3" 
+                          strokeOpacity="0.3" 
+                          strokeDasharray={p.isCustom ? "10 5" : "none"} 
+                          className={p.isCustom ? "hover:stroke-red-500 hover:stroke-opacity-80 transition-all duration-200" : ""}
+                        />
+                      </g>
                     ))}
                     {drawingConnection && <path ref={tempLineRef} d="" fill="none" stroke="#10b981" strokeWidth="3" strokeDasharray="8 4" />}
                   </svg>
 
-                  {/* Module Nodes with Performance Rings */}
+                  {/* Module Nodes */}
                   {nodesToRender.map((lesson) => {
                     const isActive = activeLesson?.lesson === lesson.lesson;
                     const perf = performanceData.find(p => p.module_id === lesson.lesson);
@@ -388,7 +461,7 @@ const PathWay = () => {
                         <div className={`relative w-16 h-16 cursor-pointer group transition-all duration-300 border-2 rounded-2xl flex items-center justify-center font-black text-xl shadow-2xl ${isActive ? 'scale-110' : 'hover:scale-105'} ${getScoreColor(perf?.grade_label)}`}>
                           {lesson.lesson}
                           {isCustomizing && (
-                            <div className="absolute -right-2 top-1/2 -translate-y-1/2 w-4 h-4 bg-green-500 rounded-full cursor-crosshair shadow-lg" onMouseDown={(e) => handleConnectorMouseDown(e, lesson.lesson, x, y)} />
+                            <div className="absolute -right-2 top-1/2 -translate-y-1/2 w-4 h-4 bg-green-500 rounded-full cursor-crosshair shadow-lg hover:scale-125 transition-transform" onMouseDown={(e) => handleConnectorMouseDown(e, lesson.lesson, x, y)} />
                           )}
                         </div>
                         <div className="absolute top-full mt-3 left-1/2 -translate-x-1/2 w-32 text-center pointer-events-none">
