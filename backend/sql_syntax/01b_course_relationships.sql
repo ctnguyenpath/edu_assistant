@@ -20,9 +20,9 @@ CREATE TABLE IF NOT EXISTS courses.module_prerequisites (
     PRIMARY KEY (module_id, required_module_id),
     
     -- Cascades ensure that if a module is deleted, its prerequisite rules are too
-    -- NOTE: This assumes your base 'modules' table has been moved to the 'courses' schema
-    FOREIGN KEY (module_id) REFERENCES courses.modules(id) ON DELETE CASCADE,
-    FOREIGN KEY (required_module_id) REFERENCES courses.modules(id) ON DELETE CASCADE
+    -- FIXED: Referencing 'module_id' to match the courses.modules primary key
+    FOREIGN KEY (module_id) REFERENCES courses.modules(module_id) ON DELETE CASCADE,
+    FOREIGN KEY (required_module_id) REFERENCES courses.modules(module_id) ON DELETE CASCADE
 );
 
 -- Index for fast prerequisite lookups when rendering the UI locks
@@ -41,9 +41,13 @@ CREATE TABLE IF NOT EXISTS student.user_path_connections (
     -- Ensure a student cannot draw the exact same duplicate line twice
     UNIQUE (student_id, source_module_id, target_module_id),
     
+    -- Links the path back to the specific student
+    FOREIGN KEY (student_id) REFERENCES student.students(student_id) ON DELETE CASCADE,
+
     -- Cross-Schema Foreign Keys linking back to the curriculum
-    FOREIGN KEY (source_module_id) REFERENCES courses.modules(id) ON DELETE CASCADE,
-    FOREIGN KEY (target_module_id) REFERENCES courses.modules(id) ON DELETE CASCADE
+    -- FIXED: Referencing 'module_id' to match the courses.modules primary key
+    FOREIGN KEY (source_module_id) REFERENCES courses.modules(module_id) ON DELETE CASCADE,
+    FOREIGN KEY (target_module_id) REFERENCES courses.modules(module_id) ON DELETE CASCADE
 );
 
 -- Index for quickly loading a specific student's entire custom map on login
