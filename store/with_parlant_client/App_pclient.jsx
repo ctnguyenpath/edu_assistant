@@ -121,19 +121,19 @@ export default function App() {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50">
-      <header className="bg-blue-600 text-white px-6 py-4 flex items-center justify-between shadow">
+    <div className="h-screen flex flex-col bg-gray-50 dark:bg-[#131314] transition-colors duration-300">
+      <header className="bg-blue-600 dark:bg-[#1E1F20] text-white dark:text-gray-100 px-6 py-4 flex items-center justify-between shadow border-b border-transparent dark:border-[#333] transition-colors duration-300">
         {/* ... (your header is fine) ... */}
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center font-bold">OC</div>
+          <div className="w-10 h-10 rounded-full bg-white/20 dark:bg-[#333] flex items-center justify-center font-bold">OC</div>
           <div>
             <div className="text-lg font-semibold">Otto Carmen</div>
-            <div className="text-sm opacity-80">Purchase assistant — powered by Parlant</div>
+            <div className="text-sm opacity-80 dark:text-gray-400">Purchase assistant — powered by Parlant</div>
           </div>
         </div>
       </header>
 
-      <main ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-2">
+      <main ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-2 bg-gray-50 dark:bg-[#0c0c0d] transition-colors duration-300">
         {messages.map((m, i) => (
           <ChatMessage key={i} role={m.role}>
             {m.content}
@@ -149,14 +149,16 @@ export default function App() {
         )}
 
         {error && (
-          <div className="text-center text-sm text-red-600 px-4 py-2">
+          <div className="text-center text-sm text-red-600 dark:text-red-400 px-4 py-2">
             {error}
           </div>
         )}
       </main>
 
       {/* This component is fine as-is */}
-      <ChatInput onSend={handleSend} sending={sending} />
+      <div className="dark:bg-[#1E1F20] dark:border-t dark:border-[#333] transition-colors duration-300">
+        <ChatInput onSend={handleSend} sending={sending} />
+      </div>
     </div>
   );
 }
