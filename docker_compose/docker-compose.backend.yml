@@ -5,6 +5,7 @@ services:
   chatbot:
     container_name: edu_chatbot_backend
     build: ../backend
+    restart: always
     ports:
       - "8802:8802"
     volumes:
@@ -48,6 +49,7 @@ services:
   auth:
     container_name: edu_auth_server
     build: ../backend
+    restart: always
     ports:
       - "8000:8000"
     volumes:
@@ -73,6 +75,7 @@ services:
   data_ops:
     container_name: edu_data_ops_backend
     build: ../backend
+    restart: always
     ports:
       - "8801:8801"
     volumes:
@@ -112,6 +115,7 @@ services:
   upload_service:
     container_name: edu_upload_service
     build: ../upload_service
+    restart: always
     ports:
       - "8005:8000"
     volumes:

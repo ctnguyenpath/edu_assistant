@@ -3,7 +3,14 @@
 # --- 1. CONFIGURATION ---
 # Dynamic path resolution
 BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
-ENV_FILE="$BASE_DIR/.env"
+
+if [[ "$(uname)" == "Darwin" ]]; then
+    ENV_FILE="$BASE_DIR/.env.mac"
+    echo "🍎 macOS detected: Using .env.mac"
+else
+    ENV_FILE="$BASE_DIR/.env"
+fi
+
 COMPOSE_DIR="$BASE_DIR/docker_compose"
 
 # --- 2. HELPER FUNCTIONS ---
