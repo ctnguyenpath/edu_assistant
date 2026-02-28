@@ -5,6 +5,14 @@ import {
 } from 'lucide-react';
 
 const ModuleDetailDashboard = ({ data }) => {
+  if (!data || data.length === 0) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-gray-50 dark:bg-[#0c0c0d] text-gray-500 dark:text-gray-400">
+        No curriculum data available.
+      </div>
+    );
+  }
+
   const [selectedId, setSelectedId] = useState(data[0]?.module_id);
   const [isSummaryOpen, setIsSummaryOpen] = useState(true);
 
@@ -87,8 +95,8 @@ const ModuleDetailDashboard = ({ data }) => {
 
           {/* Dynamic Content: Performance or Overview */}
           <div className="grid grid-cols-1 gap-8">
-            <div className="bg-[#131314] p-8 rounded-2xl border border-[#222] shadow-xl">
-              <h4 className="text-lg font-bold text-gray-100 mb-6 border-b border-[#333] pb-4 flex items-center gap-3">
+            <div className="bg-white dark:bg-[#131314] p-8 rounded-2xl border border-gray-200 dark:border-[#222] shadow-xl transition-colors duration-300">
+              <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-6 border-b border-gray-200 dark:border-[#333] pb-4 flex items-center gap-3 transition-colors duration-300">
                 <CheckCircle2 className="w-5 h-5 text-blue-500" />
                 Module Overview
               </h4>

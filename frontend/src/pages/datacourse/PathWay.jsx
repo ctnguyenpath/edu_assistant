@@ -102,6 +102,22 @@ const PathWay = () => {
 
   const currentPerf = performanceData.find(p => p.module_id === activeLesson?.lesson);
 
+  // --- MERGE DATA FOR DASHBOARD ---
+  // Combines static syllabus (always exists) with dynamic performance (might be empty)
+  const dashboardData = useMemo(() => {
+    if (!syllabusData.length) return [];
+    return syllabusData.map(mod => {
+      const perf = performanceData.find(p => p.module_id === mod.lesson);
+      return {
+        module_id: mod.lesson,
+        topic_name: mod.topic,
+        track: mod.type || 'General',
+        score_value: perf?.score_value ?? null,
+        grade_label: perf?.grade_label ?? null
+      };
+    });
+  }, [syllabusData, performanceData]);
+
   // --- 4. HTML5 DRAG & DROP LOGIC ---
   const handleDragStart = (e, lessonId) => {
     e.dataTransfer.setData('lessonId', lessonId.toString());
@@ -387,7 +403,7 @@ const PathWay = () => {
 
         {viewMode === 'dashboard' ? (
           <div className="h-full w-full animate-fade-in bg-white dark:bg-[#0c0c0d] transition-colors duration-300">
-             <ModuleDetailDashboard data={performanceData} />
+             <ModuleDetailDashboard data={dashboardData} />
           </div>
         ) : (
           <div className="flex flex-col h-full overflow-hidden">
