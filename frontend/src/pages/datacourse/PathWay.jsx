@@ -15,11 +15,11 @@ import PerformancePanel from '../../layouts/panelpage/PerformancePanel';
 const CollapsedSidebar = ({ title, icon, onClick, isRightSide }) => (
   <div 
     onClick={onClick}
-    className={`w-12 shrink-0 h-full bg-[#131314] hover:bg-[#1E1F20] border-[#333] flex flex-col items-center py-6 cursor-pointer transition-colors relative z-20 ${isRightSide ? 'border-l' : 'border-r'}`}
+    className={`w-12 shrink-0 h-full bg-gray-50 dark:bg-[#131314] hover:bg-gray-100 dark:hover:bg-[#1E1F20] border-gray-200 dark:border-[#333] flex flex-col items-center py-6 cursor-pointer transition-colors relative z-20 ${isRightSide ? 'border-l' : 'border-r'}`}
   >
     <div className="text-blue-500 mb-8">{icon}</div>
     <div 
-      className="text-gray-400 font-bold text-xs tracking-widest whitespace-nowrap" 
+      className="text-gray-500 dark:text-gray-400 font-bold text-xs tracking-widest whitespace-nowrap" 
       style={{ writingMode: 'vertical-rl', transform: isRightSide ? '' : 'rotate(180deg)' }}
     >
       {title}
@@ -97,7 +97,7 @@ const PathWay = () => {
     if (label === 'Good') return 'border-blue-500 text-blue-500 bg-blue-500/10';
     if (label === 'Average') return 'border-amber-500 text-amber-500 bg-amber-500/10';
     if (label === 'Fail') return 'border-red-500 text-red-500 bg-red-500/10';
-    return 'border-[#333] text-gray-500 bg-[#1E1F20]';
+    return 'border-gray-300 dark:border-[#333] text-gray-500 bg-white dark:bg-[#1E1F20]';
   };
 
   const currentPerf = performanceData.find(p => p.module_id === activeLesson?.lesson);
@@ -137,12 +137,10 @@ const PathWay = () => {
         if (dist < minDistance) { minDistance = dist; closestId = n.id; }
       });
       
-      // Initialize with parentIds array instead of single parentId
       return [...prev, { id: draggedLessonId, x: dropX, y: dropY, parentIds: [closestId] }];
     });
   };
 
-  // Upgraded Removal Logic to support arrays
   const removeCustomPathItem = (idToRemove) => {
     setCustomNodes(prev => {
       const nodeToRemove = prev.find(n => n.id === idToRemove);
@@ -151,11 +149,7 @@ const PathWay = () => {
       return prev.filter(n => n.id !== idToRemove).map(n => {
          const parents = n.parentIds || [];
          if (parents.includes(idToRemove)) {
-            // Replace the removed parent with its parents (bridging the gap)
-            const newParents = new Set([
-              ...parents.filter(id => id !== idToRemove), 
-              ...(nodeToRemove.parentIds || [])
-            ]);
+            const newParents = new Set([...parents.filter(id => id !== idToRemove), ...(nodeToRemove.parentIds || [])]);
             return { ...n, parentIds: Array.from(newParents) };
          }
          return n;
@@ -187,7 +181,6 @@ const PathWay = () => {
     return () => window.removeEventListener('mouseup', handleGlobalMouseUp);
   }, [drawingConnection]);
 
-  // DFS Cycle Detection
   const createsCycle = (startId, targetId, nodes) => {
     if (startId === targetId) return true;
     let visited = new Set();
@@ -199,9 +192,7 @@ const PathWay = () => {
        if (!visited.has(current)) {
           visited.add(current);
           const currNode = nodes.find(n => n.id === current);
-          if (currNode && currNode.parentIds) {
-             stack.push(...currNode.parentIds);
-          }
+          if (currNode && currNode.parentIds) stack.push(...currNode.parentIds);
        }
     }
     return false;
@@ -213,16 +204,11 @@ const PathWay = () => {
       const sourceId = drawingConnection.sourceId;
       
       if (sourceId !== targetId) {
-        const hasCycle = createsCycle(sourceId, targetId, customNodes);
-        
-        if (!hasCycle) {
+        if (!createsCycle(sourceId, targetId, customNodes)) {
           setCustomNodes(prev => prev.map(n => {
             if (n.id === targetId) {
               const currentParents = n.parentIds || [];
-              // Add sourceId to parentIds array if it doesn't already exist
-              if (!currentParents.includes(sourceId)) {
-                return { ...n, parentIds: [...currentParents, sourceId] };
-              }
+              if (!currentParents.includes(sourceId)) return { ...n, parentIds: [...currentParents, sourceId] };
             }
             return n;
           }));
@@ -234,12 +220,9 @@ const PathWay = () => {
     }
   };
 
-  // Specific connection remover
   const removeConnection = (childId, parentIdToRemove) => {
     setCustomNodes(prev => prev.map(n => {
-      if (n.id === childId) {
-        return { ...n, parentIds: (n.parentIds || []).filter(pid => pid !== parentIdToRemove) };
-      }
+      if (n.id === childId) return { ...n, parentIds: (n.parentIds || []).filter(pid => pid !== parentIdToRemove) };
       return n;
     }));
   };
@@ -282,7 +265,6 @@ const PathWay = () => {
     
     if (isCustomizing) {
       customNodes.forEach(node => {
-        // Iterate through all parentIds to draw multiple incoming lines
         const parents = node.parentIds || [];
         parents.forEach(pId => {
           let start = pId === 'START' ? { x: 150, y: 250 } : customNodes.find(n => n.id === pId);
@@ -323,26 +305,33 @@ const PathWay = () => {
   // --- 8. RENDER ---
   if (loadingData || !activeLesson) {
     return (
-      <div className="flex flex-col items-center justify-center h-full w-full bg-[#0A0A0A] text-blue-500">
+      <div className="flex flex-col items-center justify-center h-full w-full bg-white dark:bg-[#0A0A0A] text-blue-500 transition-colors duration-300">
         <RefreshCw className="w-10 h-10 animate-spin mb-4" />
-        <h2 className="text-xl font-bold tracking-widest text-gray-300 uppercase">Synchronizing Systems...</h2>
+        <h2 className="text-xl font-bold tracking-widest text-gray-500 dark:text-gray-300 uppercase">Synchronizing Systems...</h2>
       </div>
     );
   }
 
   return (
-    <div ref={pathWayRef} className="flex flex-row h-full w-full overflow-hidden select-none font-sans bg-[#0A0A0A] relative text-gray-200">
+    <div ref={pathWayRef} className="flex flex-row h-full w-full overflow-hidden select-none font-sans bg-gray-50 dark:bg-[#0A0A0A] relative text-gray-800 dark:text-gray-200 transition-colors duration-300">
       
       <style>{`
         .course-map-scroll::-webkit-scrollbar { height: 12px; width: 12px; }
-        .course-map-scroll::-webkit-scrollbar-track { background: #131314; }
-        .course-map-scroll::-webkit-scrollbar-thumb { background-color: #333; border-radius: 20px; border: 3px solid #131314; }
-        .bg-grid-pattern { background-size: 50px 50px; background-image: radial-gradient(circle, #222 1px, transparent 1px); }
+        
+        /* Dark Mode Scrollbars & Backgrounds */
+        .dark .course-map-scroll::-webkit-scrollbar-track { background: #131314; }
+        .dark .course-map-scroll::-webkit-scrollbar-thumb { background-color: #333; border-radius: 20px; border: 3px solid #131314; }
+        .dark .bg-grid-pattern { background-size: 50px 50px; background-image: radial-gradient(circle, #222 1px, transparent 1px); }
+        
+        /* Light Mode Scrollbars & Backgrounds */
+        .course-map-scroll::-webkit-scrollbar-track { background: #f9fafb; }
+        .course-map-scroll::-webkit-scrollbar-thumb { background-color: #d1d5db; border-radius: 20px; border: 3px solid #f9fafb; }
+        .bg-grid-pattern { background-size: 50px 50px; background-image: radial-gradient(circle, #e5e7eb 1px, transparent 1px); }
       `}</style>
 
       {/* --- LEFT SIDEBAR --- */}
       {openPanels.list ? (
-        <div style={{ width: `${listPanelWidth}px` }} className={`shrink-0 h-full border-r border-[#333] flex flex-col bg-[#0c0c0d] relative z-20 ${isResizingList ? '' : 'transition-[width] duration-300'}`}>
+        <div style={{ width: `${listPanelWidth}px` }} className={`shrink-0 h-full border-r border-gray-200 dark:border-[#333] flex flex-col bg-white dark:bg-[#0c0c0d] relative z-20 transition-colors duration-300 ${isResizingList ? '' : 'transition-[width] duration-300'}`}>
           <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
             <ModuleListPanel 
               syllabusData={syllabusData} 
@@ -365,28 +354,28 @@ const PathWay = () => {
         <CollapsedSidebar title="Curriculum Modules" icon={<ListPlus size={20}/>} onClick={() => setOpenPanels(p => ({...p, list: true}))} />
       )}
       
-      <div className="flex-1 flex flex-col h-full bg-[#131314] relative z-10 min-w-0">
+      <div className="flex-1 flex flex-col h-full bg-gray-50 dark:bg-[#131314] relative z-10 min-w-0 transition-colors duration-300">
         
         {/* TOP NAV OVERLAY */}
         <div className="absolute top-6 right-6 z-50 flex gap-3">
           {isCustomizing && (
             <button 
               onClick={clearCustomPath}
-              className="flex items-center gap-2 px-4 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 rounded-xl text-xs font-bold transition-all shadow-xl"
+              className="flex items-center gap-2 px-4 py-2.5 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20 text-red-500 dark:text-red-400 border border-red-200 dark:border-red-500/30 rounded-xl text-xs font-bold transition-all shadow-sm"
             >
               <Undo2 size={14} /> Reset Map
             </button>
           )}
           <button 
             onClick={fetchData}
-            className="flex items-center gap-2 px-4 py-2.5 bg-[#1E1F20] hover:bg-[#333] text-gray-200 border border-[#333] rounded-xl text-xs font-bold transition-all shadow-xl"
+            className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-[#1E1F20] hover:bg-gray-100 dark:hover:bg-[#333] text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-[#333] rounded-xl text-xs font-bold transition-all shadow-sm"
             title="Refresh Data"
           >
             <RefreshCw size={14} className={loadingData ? "animate-spin" : ""} />
           </button>
           <button 
             onClick={() => setViewMode(viewMode === 'canvas' ? 'dashboard' : 'canvas')}
-            className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all shadow-xl"
+            className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 dark:hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all shadow-sm"
           >
             {viewMode === 'canvas' ? (
               <><LayoutDashboard size={14} /> View Module Details</>
@@ -397,7 +386,7 @@ const PathWay = () => {
         </div>
 
         {viewMode === 'dashboard' ? (
-          <div className="h-full w-full animate-fade-in bg-[#0c0c0d]">
+          <div className="h-full w-full animate-fade-in bg-white dark:bg-[#0c0c0d] transition-colors duration-300">
              <ModuleDetailDashboard data={performanceData} />
           </div>
         ) : (
@@ -405,11 +394,12 @@ const PathWay = () => {
             {/* 1. MAP VIEW */}
             <div style={{ height: openPanels.details ? `${topHeight}%` : '100%' }} className="relative flex-shrink-0 z-10 flex flex-col min-h-[200px] transition-all duration-300">
               <div className="absolute top-0 left-0 p-6 flex items-center gap-4 z-30 pointer-events-none">
-                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border-2 backdrop-blur-md transition-all shadow-lg ${isCustomizing ? 'bg-green-600/20 border-green-500/40' : 'bg-blue-600/20 border-blue-500/40'}`}>
-                  <Network className={`w-6 h-6 ${isCustomizing ? 'text-green-400' : 'text-blue-400'}`}/>
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border-2 backdrop-blur-md transition-all shadow-sm 
+                  ${isCustomizing ? 'bg-green-100 dark:bg-green-600/20 border-green-300 dark:border-green-500/40' : 'bg-blue-100 dark:bg-blue-600/20 border-blue-300 dark:border-blue-500/40'}`}>
+                  <Network className={`w-6 h-6 ${isCustomizing ? 'text-green-600 dark:text-green-400' : 'text-blue-600 dark:text-blue-400'}`}/>
                 </div>
                 <div>
-                  <h2 className="text-white font-black text-lg tracking-tight leading-none mb-1">{isCustomizing ? "Sandbox Mode" : "Standard Pathway"}</h2>
+                  <h2 className="text-gray-900 dark:text-white font-black text-lg tracking-tight leading-none mb-1 transition-colors">{isCustomizing ? "Sandbox Mode" : "Standard Pathway"}</h2>
                   <p className="text-gray-500 text-xs font-medium uppercase tracking-widest">{isCustomizing ? "Click lines to cut" : "Recommended Learning Order"}</p>
                 </div>
               </div>
@@ -429,19 +419,16 @@ const PathWay = () => {
                         className={p.isCustom ? "pointer-events-auto cursor-pointer" : ""} 
                         onClick={() => p.isCustom && removeConnection(p.childId, p.parentId)}
                       >
-                        {/* Invisible thick path to make clicking easier */}
                         {p.isCustom && (
                           <path d={p.pathData} fill="none" stroke="transparent" strokeWidth="15" />
                         )}
-                        {/* Visible Line */}
                         <path 
                           d={p.pathData} 
                           fill="none" 
                           stroke={isCustomizing ? "#10b981" : "#3b82f6"} 
                           strokeWidth="3" 
-                          strokeOpacity="0.3" 
+                          className={`stroke-opacity-50 dark:stroke-opacity-30 ${p.isCustom ? "hover:stroke-red-500 hover:stroke-opacity-80 transition-all duration-200" : ""}`}
                           strokeDasharray={p.isCustom ? "10 5" : "none"} 
-                          className={p.isCustom ? "hover:stroke-red-500 hover:stroke-opacity-80 transition-all duration-200" : ""}
                         />
                       </g>
                     ))}
@@ -458,14 +445,14 @@ const PathWay = () => {
                       <div key={lesson.lesson} className="absolute z-20" style={{ left: `${x}px`, top: `${y}px`, transform: 'translate(-50%, -50%)' }}
                         onClick={() => setActiveLesson(lesson)} onMouseUp={(e) => handleNodeMouseUp(e, lesson.lesson)} 
                       >
-                        <div className={`relative w-16 h-16 cursor-pointer group transition-all duration-300 border-2 rounded-2xl flex items-center justify-center font-black text-xl shadow-2xl ${isActive ? 'scale-110' : 'hover:scale-105'} ${getScoreColor(perf?.grade_label)}`}>
+                        <div className={`relative w-16 h-16 cursor-pointer group transition-all duration-300 border-2 rounded-2xl flex items-center justify-center font-black text-xl shadow-md ${isActive ? 'scale-110 shadow-lg' : 'hover:scale-105'} ${getScoreColor(perf?.grade_label)}`}>
                           {lesson.lesson}
                           {isCustomizing && (
-                            <div className="absolute -right-2 top-1/2 -translate-y-1/2 w-4 h-4 bg-green-500 rounded-full cursor-crosshair shadow-lg hover:scale-125 transition-transform" onMouseDown={(e) => handleConnectorMouseDown(e, lesson.lesson, x, y)} />
+                            <div className="absolute -right-2 top-1/2 -translate-y-1/2 w-4 h-4 bg-green-500 rounded-full cursor-crosshair shadow-sm hover:scale-125 transition-transform" onMouseDown={(e) => handleConnectorMouseDown(e, lesson.lesson, x, y)} />
                           )}
                         </div>
                         <div className="absolute top-full mt-3 left-1/2 -translate-x-1/2 w-32 text-center pointer-events-none">
-                           <p className={`text-[10px] font-bold uppercase ${isActive ? 'text-blue-400' : 'text-gray-500'}`}>{lesson.topic}</p>
+                           <p className={`text-[10px] font-bold uppercase ${isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500'}`}>{lesson.topic}</p>
                         </div>
                       </div>
                     );
@@ -476,14 +463,14 @@ const PathWay = () => {
 
             {/* 2. RESIZER */}
             {openPanels.details && (
-              <div onMouseDown={handleHeightMouseDown} className="h-1.5 flex-shrink-0 bg-[#1E1F20] hover:bg-blue-600 cursor-row-resize flex items-center justify-center z-40 border-y border-[#333] group">
-                <GripHorizontal className="text-gray-700 group-hover:text-white w-4 h-4 transition-colors" />
+              <div onMouseDown={handleHeightMouseDown} className="h-1.5 flex-shrink-0 bg-gray-200 dark:bg-[#1E1F20] hover:bg-blue-500 dark:hover:bg-blue-600 cursor-row-resize flex items-center justify-center z-40 border-y border-gray-300 dark:border-[#333] group transition-colors duration-300">
+                <GripHorizontal className="text-gray-400 dark:text-gray-700 group-hover:text-white w-4 h-4 transition-colors" />
               </div>
             )}
 
             {/* 3. DETAILS PANEL */}
             {openPanels.details && (
-              <div className="flex-1 w-full bg-[#0c0c0d] overflow-hidden relative">
+              <div className="flex-1 w-full bg-white dark:bg-[#0c0c0d] overflow-hidden relative transition-colors duration-300">
                 <ModuleDetailsPanel activeLesson={activeLesson} isCustomizing={isCustomizing} customPath={customPathIds} removeCustomPathItem={removeCustomPathItem} onClose={() => setOpenPanels(p => ({...p, details: false}))} />
               </div>
             )}

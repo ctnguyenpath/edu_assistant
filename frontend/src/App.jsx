@@ -8,7 +8,8 @@ import { API_BASE_URL, MINIO_BASE_URL, BUCKET_NAME, AGENT_ID, PARLANT_URL } from
 import { chatService } from "./api"; 
 
 // --- CONTEXT ---
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext'; // <-- NEW: Import the Theme Provider
 
 // --- LAYOUTS ---
 import MainLayout from './layouts/MainLayout';
@@ -203,57 +204,59 @@ const App = () => {
 
   // --- RENDER ---
   return (
-    <AuthProvider>
-      <Routes>
-        {/* 1. Login Page */}
-        <Route path="/login" element={<LoginPage />} />
+    <ThemeProvider> {/* <-- NEW: Global Theme Wrapper */}
+      <AuthProvider>
+        <Routes>
+          {/* 1. Login Page */}
+          <Route path="/login" element={<LoginPage />} />
 
-        {/* 2. Main App Layout */}
-        <Route element={<MainLayout />}>
-          
-          {/* PUBLIC PAGES */}
-          <Route path="/" element={
-            <HomePage 
-              videos={videos} 
-              onPlayVideo={(clip) => navigate(`/watch/${clip.filename}`)} 
-            />
-          } />
-          
-          <Route path="/discover" element={
-            <DiscoverPage 
-              chatProps={chatProps} 
-              videos={videos} 
-              refreshVideos={fetchVideos} 
-              loadingVideos={loadingVideos} 
-            />
-          } />
+          {/* 2. Main App Layout */}
+          <Route element={<MainLayout />}>
+            
+            {/* PUBLIC PAGES */}
+            <Route path="/" element={
+              <HomePage 
+                videos={videos} 
+                onPlayVideo={(clip) => navigate(`/watch/${clip.filename}`)} 
+              />
+            } />
+            
+            <Route path="/discover" element={
+              <DiscoverPage 
+                chatProps={chatProps} 
+                videos={videos} 
+                refreshVideos={fetchVideos} 
+                loadingVideos={loadingVideos} 
+              />
+            } />
 
-          {/* COURSE PAGES */}
-          <Route path="/discover/introduction" element={<IntroductionPage chatProps={chatProps} />} />
-          
-          {/* UPDATED THIS ROUTE: Changed path from /discover/sql to /discover/pathway */}
-          <Route path="/discover/pathway" element={<PathWay chatProps={chatProps} />} />
+            {/* COURSE PAGES */}
+            <Route path="/discover/introduction" element={<IntroductionPage chatProps={chatProps} />} />
+            
+            {/* UPDATED THIS ROUTE: Changed path from /discover/sql to /discover/pathway */}
+            <Route path="/discover/pathway" element={<PathWay chatProps={chatProps} />} />
 
-          {/* PROTECTED PAGES */}
-          <Route path="/chat" element={
-            <ProtectedRoute>
-              <ChatInterface {...chatProps} />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/library" element={
-            <ProtectedRoute>
-              <div className="p-10 text-gray-400">Your Personal Library (Coming Soon)</div>
-            </ProtectedRoute>
-          } />
+            {/* PROTECTED PAGES */}
+            <Route path="/chat" element={
+              <ProtectedRoute>
+                <ChatInterface {...chatProps} />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/library" element={
+              <ProtectedRoute>
+                <div className="p-10 text-gray-400">Your Personal Library (Coming Soon)</div>
+              </ProtectedRoute>
+            } />
 
-        </Route>
+          </Route>
 
-        {/* 3. Video Player */}
-        <Route path="/watch/:filename" element={<VideoPlayer />} />
+          {/* 3. Video Player */}
+          <Route path="/watch/:filename" element={<VideoPlayer />} />
 
-      </Routes>
-    </AuthProvider>
+        </Routes>
+      </AuthProvider>
+    </ThemeProvider>
   );
 };
 

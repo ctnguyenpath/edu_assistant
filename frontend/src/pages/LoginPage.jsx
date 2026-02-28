@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 const LoginPage = () => {
@@ -42,9 +42,9 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded shadow-lg w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Login</h2>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-[#131314] transition-colors duration-300">
+      <div className="bg-white dark:bg-[#1E1F20] p-8 rounded-2xl border border-gray-200 dark:border-[#333] shadow-lg w-full max-w-md transition-colors duration-300">
+        <h2 className="text-2xl font-bold mb-6 text-center text-gray-800 dark:text-white transition-colors">Login</h2>
         
         {error && (
           <div className="mb-4 p-3 bg-red-100 text-red-700 rounded text-sm">
@@ -54,11 +54,11 @@ const LoginPage = () => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-gray-700 text-sm font-bold mb-2">Email</label>
+            <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2 transition-colors">Email</label>
             <input
               type="email"
               required
-              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-[#333] rounded bg-white dark:bg-[#131314] text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="user@example.com"
@@ -66,11 +66,11 @@ const LoginPage = () => {
           </div>
 
           <div>
-            <label className="block text-gray-700 text-sm font-bold mb-2">Password</label>
+            <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2 transition-colors">Password</label>
             <input
               type="password"
               required
-              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-[#333] rounded bg-white dark:bg-[#131314] text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="********"

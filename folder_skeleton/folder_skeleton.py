@@ -28,4 +28,4 @@ if __name__ == "__main__":
     path = "." 
     
     print(f"Structure for: {os.path.abspath(path)}\n")
-    print_tree(fr'F:\Projects\edu_assistant')
+    print_tree(fr'/Volumes/Data/projects/edu_assistant')

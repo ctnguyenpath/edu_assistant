@@ -139,22 +139,22 @@ const IntroductionPage = ({ chatProps }) => {
   }, []);
 
   return (
-    <div className="flex flex-col h-full overflow-hidden select-none">
+    <div className="flex flex-col h-full overflow-hidden select-none bg-white dark:bg-[#131314] transition-colors duration-300">
       
       {/* --- TOP SECTION (Dynamic Height) --- */}
-      <div style={{ height: `${topHeight}%` }} className="bg-black flex relative transition-none">
+      <div style={{ height: `${topHeight}%` }} className="bg-gray-100 dark:bg-black flex relative transition-colors duration-300">
         
         {/* Sidebar */}
-        <div className={`${isSidebarOpen ? 'w-72 border-r' : 'w-0 border-r-0'} bg-[#1E1F20] border-[#333] flex flex-col transition-all duration-300 ease-in-out overflow-hidden`}>
-           <div className="p-3 border-b border-[#333] flex justify-between items-center bg-[#1E1F20] min-w-[18rem]">
-             <span className="text-gray-400 text-xs font-bold uppercase flex items-center gap-2">
-               <BookOpen className="w-3 h-3 text-blue-400"/> Intro Module ({videos.length})
+        <div className={`${isSidebarOpen ? 'w-72 border-r' : 'w-0 border-r-0'} bg-gray-50 dark:bg-[#1E1F20] border-gray-200 dark:border-[#333] flex flex-col transition-all duration-300 ease-in-out overflow-hidden`}>
+           <div className="p-3 border-b border-gray-200 dark:border-[#333] flex justify-between items-center bg-gray-50 dark:bg-[#1E1F20] min-w-[18rem] transition-colors duration-300">
+             <span className="text-gray-600 dark:text-gray-400 text-xs font-bold uppercase flex items-center gap-2">
+               <BookOpen className="w-3 h-3 text-blue-500 dark:text-blue-400"/> Intro Module ({videos.length})
              </span>
              <div className="flex gap-2">
-               <button onClick={fetchIntroVideos} className={`text-gray-500 hover:text-white ${loading ? 'animate-spin' : ''}`}>
+               <button onClick={fetchIntroVideos} className={`text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors ${loading ? 'animate-spin' : ''}`}>
                  <RefreshCw className="w-3 h-3" />
                </button>
-               <button onClick={() => setIsSidebarOpen(false)} className="text-gray-500 hover:text-white md:hidden">
+               <button onClick={() => setIsSidebarOpen(false)} className="text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors md:hidden">
                  <ChevronLeft className="w-4 h-4" />
                </button>
              </div>
@@ -168,15 +168,15 @@ const IntroductionPage = ({ chatProps }) => {
                  <div 
                    key={clip.filename} 
                    onClick={() => setActiveVideo(clip)}
-                   className={`p-3 cursor-pointer hover:bg-[#282A2C] transition-colors flex gap-3 border-b border-white/5 ${
-                     activeVideo?.filename === clip.filename ? 'bg-[#282A2C] border-l-4 border-l-blue-500' : 'border-l-4 border-l-transparent'
+                   className={`p-3 cursor-pointer hover:bg-gray-200 dark:hover:bg-[#282A2C] transition-colors flex gap-3 border-b border-gray-200 dark:border-white/5 ${
+                     activeVideo?.filename === clip.filename ? 'bg-gray-200 dark:bg-[#282A2C] border-l-4 border-l-blue-500' : 'border-l-4 border-l-transparent'
                    }`}
                  >
-                    <div className="w-10 h-10 bg-gray-800 rounded flex-shrink-0 flex items-center justify-center text-blue-500/50">
+                    <div className="w-10 h-10 bg-gray-300 dark:bg-gray-800 rounded flex-shrink-0 flex items-center justify-center text-blue-600/60 dark:text-blue-500/50 transition-colors duration-300">
                         <Play size={16} fill="currentColor" />
                     </div>
                     <div className="overflow-hidden flex flex-col justify-center">
-                      <p className="text-gray-200 text-xs font-medium truncate leading-tight mb-1">{clip.title}</p>
+                      <p className="text-gray-800 dark:text-gray-200 text-xs font-medium truncate leading-tight mb-1 transition-colors duration-300">{clip.title}</p>
                       <p className="text-gray-500 text-[10px]">{clip.size}</p>
                     </div>
                  </div>
@@ -186,10 +186,10 @@ const IntroductionPage = ({ chatProps }) => {
         </div>
 
         {/* Video Player */}
-        <div className="flex-1 flex items-center justify-center bg-black relative">
+        <div className="flex-1 flex items-center justify-center bg-gray-100 dark:bg-black relative transition-colors duration-300">
            <button 
              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-             className="absolute top-4 left-4 z-20 p-2 bg-black/50 hover:bg-black/80 text-white rounded-lg backdrop-blur-sm border border-white/10"
+             className="absolute top-4 left-4 z-20 p-2 bg-white/80 dark:bg-black/50 hover:bg-white dark:hover:bg-black/80 text-gray-800 dark:text-white rounded-lg backdrop-blur-sm border border-gray-300 dark:border-white/10 shadow-sm transition-colors"
              title={isSidebarOpen ? "Close Sidebar" : "Open Sidebar"}
            >
              {isSidebarOpen ? <ChevronLeft size={20} /> : <PanelLeft size={20} />}
@@ -198,10 +198,10 @@ const IntroductionPage = ({ chatProps }) => {
            {activeVideo && (
              <button 
                onClick={handlePopOut}
-               className="absolute top-4 right-4 z-20 p-2 bg-black/50 hover:bg-blue-600 text-white rounded-lg backdrop-blur-sm border border-white/10 transition-colors group"
+               className="absolute top-4 right-4 z-20 p-2 bg-white/80 dark:bg-black/50 hover:bg-blue-50 dark:hover:bg-blue-600 text-gray-800 dark:text-white rounded-lg backdrop-blur-sm border border-gray-300 dark:border-white/10 shadow-sm transition-colors group"
                title="Open in new window"
              >
-               <ExternalLink size={20} />
+               <ExternalLink size={20} className="group-hover:text-blue-600 dark:group-hover:text-white transition-colors" />
              </button>
            )}
 
@@ -213,12 +213,12 @@ const IntroductionPage = ({ chatProps }) => {
                  className="w-full h-full max-h-full object-contain"
                  src={`${MINIO_BASE_URL}/${BUCKET_NAME}/${activeVideo.filename}`} 
                />
-               <div className={`absolute top-4 ${isSidebarOpen ? 'left-16' : 'left-16'} bg-black/60 backdrop-blur px-3 py-1 rounded text-white text-sm font-medium z-10 pointer-events-none transition-all`}>
+               <div className={`absolute top-4 ${isSidebarOpen ? 'left-16' : 'left-16'} bg-white/90 dark:bg-black/60 backdrop-blur px-3 py-1 rounded text-gray-900 dark:text-white text-sm font-medium z-10 pointer-events-none transition-all shadow-sm`}>
                   Now Playing: {activeVideo.title}
                </div>
              </>
            ) : (
-             <div className="text-gray-500 flex flex-col items-center">
+             <div className="text-gray-400 dark:text-gray-500 flex flex-col items-center transition-colors duration-300">
                <BookOpen className="w-12 h-12 mb-2 opacity-20"/>
                <p>Select an intro video</p>
              </div>
@@ -227,14 +227,16 @@ const IntroductionPage = ({ chatProps }) => {
         </div>
       </div>
 
+      {/* --- DRAG RESIZER --- */}
       <div 
         onMouseDown={handleMouseDown}
-        className="h-2 bg-[#1E1F20] hover:bg-blue-600 cursor-row-resize flex items-center justify-center transition-colors z-40 border-y border-[#333] group"
+        className="h-2 bg-gray-200 dark:bg-[#1E1F20] hover:bg-blue-500 dark:hover:bg-blue-600 cursor-row-resize flex items-center justify-center transition-colors z-40 border-y border-gray-300 dark:border-[#333] group"
       >
-        <GripHorizontal className="text-gray-600 group-hover:text-white w-4 h-4" />
+        <GripHorizontal className="text-gray-400 dark:text-gray-600 group-hover:text-white w-4 h-4 transition-colors" />
       </div>
 
-      <div style={{ height: `${100 - topHeight}%` }} className="bg-[#131314] relative">
+      {/* --- BOTTOM SECTION (Chat) --- */}
+      <div style={{ height: `${100 - topHeight}%` }} className="bg-white dark:bg-[#131314] relative transition-colors duration-300">
         <ChatInterface {...chatProps} compact={true} />
         {isDragging && <div className="absolute inset-0 z-50 bg-transparent" />}
       </div>

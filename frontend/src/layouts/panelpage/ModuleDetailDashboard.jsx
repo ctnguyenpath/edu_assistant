@@ -21,12 +21,12 @@ const ModuleDetailDashboard = ({ data }) => {
   };
 
   return (
-    <div className="flex h-screen bg-[#0c0c0d] font-sans overflow-hidden text-gray-200">
+    <div className="flex h-screen bg-gray-50 dark:bg-[#0c0c0d] font-sans overflow-hidden text-gray-900 dark:text-gray-200 transition-colors duration-300">
       
       {/* 1. LEFT SIDE: Module List */}
-      <div className="w-80 border-r border-[#222] overflow-y-auto bg-[#131314] shrink-0 scrollbar-thin scrollbar-thumb-[#333]">
-        <div className="p-6 border-b border-[#222] bg-[#131314] sticky top-0 z-10">
-          <h2 className="text-sm font-bold flex items-center gap-2 uppercase tracking-widest text-gray-400">
+      <div className="w-80 border-r border-gray-200 dark:border-[#222] overflow-y-auto bg-white dark:bg-[#131314] shrink-0 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-[#333] transition-colors duration-300">
+        <div className="p-6 border-b border-gray-200 dark:border-[#222] bg-white dark:bg-[#131314] sticky top-0 z-10 transition-colors duration-300">
+          <h2 className="text-sm font-bold flex items-center gap-2 uppercase tracking-widest text-gray-500 dark:text-gray-400">
             <BookOpen size={16} className="text-blue-500"/> Curriculum
           </h2>
         </div>
@@ -34,14 +34,14 @@ const ModuleDetailDashboard = ({ data }) => {
           <div 
             key={mod.module_id}
             onClick={() => setSelectedId(mod.module_id)}
-            className={`p-5 cursor-pointer border-b border-[#222] transition-all relative ${
+            className={`p-5 cursor-pointer border-b border-gray-100 dark:border-[#222] transition-all relative ${
               selectedId === mod.module_id 
-                ? 'bg-[#1E1F20] border-l-4 border-l-blue-600' 
-                : 'hover:bg-[#181819]'
+                ? 'bg-blue-50 dark:bg-[#1E1F20] border-l-4 border-l-blue-600' 
+                : 'hover:bg-gray-50 dark:hover:bg-[#181819]'
             }`}
           >
             <p className="text-[10px] font-bold text-blue-500 uppercase tracking-widest mb-1">{mod.track}</p>
-            <h3 className="font-bold text-sm text-gray-100 leading-snug">{mod.topic_name}</h3>
+            <h3 className="font-bold text-sm text-gray-800 dark:text-gray-100 leading-snug transition-colors duration-300">{mod.topic_name}</h3>
             
             {mod.score_value !== null && (
               <div className={`mt-3 text-[10px] px-2 py-1 rounded-md border font-bold inline-flex items-center gap-1.5 ${getScoreColor(mod.grade_label)}`}>
@@ -54,7 +54,7 @@ const ModuleDetailDashboard = ({ data }) => {
       </div>
 
       {/* 2. CENTER: Main Detail Area (Styled like ModuleDetailsPanel) */}
-      <div className="flex-1 overflow-y-auto bg-[#0c0c0d] scrollbar-thin scrollbar-thumb-[#333]">
+      <div className="flex-1 overflow-y-auto bg-gray-50 dark:bg-[#0c0c0d] scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-[#333] transition-colors duration-300">
         <div className="max-w-4xl mx-auto p-12 animate-fade-in-up">
           
           {/* Header Section */}
@@ -99,10 +99,10 @@ const ModuleDetailDashboard = ({ data }) => {
                   { level: "Junior", desc: `Fundamental concepts of ${selectedModule.topic_name}.` },
                   { level: "Senior", desc: `Advanced implementation and optimization techniques.` }
                 ].map((lvl, idx) => (
-                  <div key={idx} className="bg-[#1c1c1e] p-5 rounded-xl border border-[#333] relative overflow-hidden group hover:border-blue-500/30 transition-colors">
+                  <div key={idx} className="bg-gray-50 dark:bg-[#1c1c1e] p-5 rounded-xl border border-gray-200 dark:border-[#333] relative overflow-hidden group hover:border-blue-500/30 transition-colors duration-300">
                     <div className={`absolute top-0 left-0 w-1 h-full ${lvl.level === 'Junior' ? 'bg-green-500' : 'bg-amber-500'}`}></div>
                     <h5 className={`font-bold text-xs mb-1 uppercase tracking-widest ${lvl.level === 'Junior' ? 'text-green-400' : 'text-amber-400'}`}>{lvl.level} Mastery</h5>
-                    <p className="text-gray-400 text-sm">{lvl.desc}</p>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm transition-colors duration-300">{lvl.desc}</p>
                   </div>
                 ))}
               </div>
@@ -112,11 +112,11 @@ const ModuleDetailDashboard = ({ data }) => {
       </div>
 
       {/* 3. RIGHT SIDE: Performance Summary */}
-      <div className={`relative border-l border-[#222] transition-all duration-300 ease-in-out bg-[#131314] flex ${isSummaryOpen ? 'w-80' : 'w-12'}`}>
+      <div className={`relative border-l border-gray-200 dark:border-[#222] transition-all duration-300 ease-in-out bg-white dark:bg-[#131314] flex ${isSummaryOpen ? 'w-80' : 'w-12'}`}>
         
         <button 
           onClick={() => setIsSummaryOpen(!isSummaryOpen)}
-          className="absolute -left-3 top-10 bg-[#1E1F20] border border-[#333] rounded-full p-1 shadow-xl hover:bg-[#282A2C] z-20 text-gray-400"
+          className="absolute -left-3 top-10 bg-white dark:bg-[#1E1F20] border border-gray-200 dark:border-[#333] rounded-full p-1 shadow-xl hover:bg-gray-100 dark:hover:bg-[#282A2C] z-20 text-gray-500 dark:text-gray-400 transition-colors duration-300"
         >
           {isSummaryOpen ? <ChevronRight size={16}/> : <ChevronLeft size={16}/>}
         </button>
@@ -124,7 +124,7 @@ const ModuleDetailDashboard = ({ data }) => {
         {!isSummaryOpen && (
           <div className="w-full flex flex-col items-center pt-20 gap-8 cursor-pointer" onClick={() => setIsSummaryOpen(true)}>
             <Trophy className="text-blue-500" size={20}/>
-            <span className="rotate-90 whitespace-nowrap font-bold text-gray-500 uppercase tracking-widest text-[10px]">
+            <span className="rotate-90 whitespace-nowrap font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest text-[10px]">
               Performance Summary
             </span>
           </div>
@@ -132,16 +132,16 @@ const ModuleDetailDashboard = ({ data }) => {
 
         {isSummaryOpen && (
           <div className="w-full p-8 overflow-y-auto">
-            <h2 className="text-sm font-bold flex items-center gap-2 mb-10 uppercase tracking-widest text-gray-400">
+            <h2 className="text-sm font-bold flex items-center gap-2 mb-10 uppercase tracking-widest text-gray-500 dark:text-gray-400">
               <Trophy size={18} className="text-blue-500"/> Performance
             </h2>
             
             <div className="space-y-8">
-              <div className="bg-[#1E1F20] p-6 rounded-2xl border border-[#333] shadow-inner">
+              <div className="bg-gray-50 dark:bg-[#1E1F20] p-6 rounded-2xl border border-gray-200 dark:border-[#333] shadow-inner transition-colors duration-300">
                 <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Selected Score</p>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-6xl font-black text-white">{selectedModule.score_value ?? '--'}</span>
-                  <span className="text-gray-600 font-bold text-xl">/ 10</span>
+                  <span className="text-6xl font-black text-gray-900 dark:text-white transition-colors duration-300">{selectedModule.score_value ?? '--'}</span>
+                  <span className="text-gray-400 dark:text-gray-600 font-bold text-xl">/ 10</span>
                 </div>
                 <div className={`mt-5 text-[10px] font-bold px-3 py-1.5 rounded-lg border inline-block uppercase tracking-wider ${getScoreColor(selectedModule.grade_label)}`}>
                   {selectedModule.grade_label || 'Not Started'}
@@ -158,12 +158,12 @@ const ModuleDetailDashboard = ({ data }) => {
                 </div>
               )}
 
-              <div className="bg-[#1E1F20] p-6 rounded-2xl border border-[#333]">
+              <div className="bg-gray-50 dark:bg-[#1E1F20] p-6 rounded-2xl border border-gray-200 dark:border-[#333] transition-colors duration-300">
                 <div className="flex items-center justify-between mb-4">
-                  <h4 className="font-bold text-gray-300 text-xs uppercase tracking-widest">Global Progress</h4>
+                  <h4 className="font-bold text-gray-700 dark:text-gray-300 text-xs uppercase tracking-widest transition-colors duration-300">Global Progress</h4>
                   <TrendingUp size={16} className="text-blue-500"/>
                 </div>
-                <div className="w-full bg-[#0c0c0d] h-2.5 rounded-full overflow-hidden border border-[#333]">
+                <div className="w-full bg-gray-200 dark:bg-[#0c0c0d] h-2.5 rounded-full overflow-hidden border border-gray-300 dark:border-[#333] transition-colors duration-300">
                   <div className="bg-blue-600 h-full w-2/3 shadow-[0_0_10px_rgba(37,99,235,0.5)]"></div>
                 </div>
                 <p className="text-[10px] text-gray-500 mt-3 font-bold uppercase tracking-tighter">14 of 20 Modules Completed</p>

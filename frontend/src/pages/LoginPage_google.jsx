@@ -1,7 +1,7 @@
 import React from 'react';
 import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from "jwt-decode";
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Sparkles, ArrowLeft } from 'lucide-react';
 
@@ -36,14 +36,14 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="h-screen bg-[#131314] flex items-center justify-center text-white relative">
+    <div className="h-screen bg-gray-50 dark:bg-[#131314] flex items-center justify-center text-gray-900 dark:text-white relative transition-colors duration-300">
       
       {/* Back Button */}
-      <button onClick={() => navigate('/')} className="absolute top-8 left-8 p-2 bg-[#1E1F20] rounded-full hover:bg-[#333]">
+      <button onClick={() => navigate('/')} className="absolute top-8 left-8 p-2 bg-white dark:bg-[#1E1F20] rounded-full hover:bg-gray-100 dark:hover:bg-[#333] shadow-sm transition-colors">
         <ArrowLeft className="w-6 h-6" />
       </button>
 
-      <div className="w-full max-w-md p-8 bg-[#1E1F20] rounded-2xl border border-[#333] shadow-2xl text-center">
+      <div className="w-full max-w-md p-8 bg-white dark:bg-[#1E1F20] rounded-2xl border border-gray-200 dark:border-[#333] shadow-2xl text-center transition-colors duration-300">
         <div className="flex justify-center mb-6">
           <div className="w-16 h-16 bg-blue-600/20 rounded-full flex items-center justify-center">
             <Sparkles className="w-8 h-8 text-blue-400" />
@@ -51,7 +51,7 @@ const LoginPage = () => {
         </div>
         
         <h1 className="text-2xl font-bold mb-2">Welcome</h1>
-        <p className="text-gray-400 mb-8">Sign in to save your progress</p>
+        <p className="text-gray-500 dark:text-gray-400 mb-8 transition-colors">Sign in to save your progress</p>
 
         {/* GOOGLE BUTTON */}
         <div className="flex justify-center">

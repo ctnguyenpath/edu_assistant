@@ -1,168 +1,135 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { 
-  Menu, Home, Compass, Library, Database, BookOpen, 
-  ChevronDown, ChevronRight, LogOut, User, Network
+  Home, 
+  Compass, 
+  Map as MapIcon, 
+  MessageSquare, 
+  Library, 
+  LogOut,
+  ChevronLeft,
+  ChevronRight,
+  BookOpen
 } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext'; 
+
+import ThemeToggle from '../components/ThemeToggle'; // Adjust path if needed
+import { useAuth } from '../contexts/AuthContext'; 
 
 const Sidebar = () => {
-  const { user, logout } = useAuth(); 
-  const navigate = useNavigate(); 
   const location = useLocation();
+  const { logout } = useAuth(); 
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
-  const [sidebarExtended, setSidebarExtended] = useState(true);
-  const [expandedMenus, setExpandedMenus] = useState({});
-  
-  // --- RESIZER STATE ---
-  const [sidebarWidth, setSidebarWidth] = useState(() => {
-    const saved = localStorage.getItem('main_sidebar_width');
-    return saved !== null ? parseInt(saved, 10) : 256; // 256px default (matches old w-64)
-  });
-  const [isResizing, setIsResizing] = useState(false);
-
-  // Save width to localStorage
-  useEffect(() => {
-    localStorage.setItem('main_sidebar_width', sidebarWidth.toString());
-  }, [sidebarWidth]);
-
-  // Handle Dragging
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      if (!isResizing) return;
-      let newWidth = e.clientX;
-      if (newWidth < 160) newWidth = 160; // Minimum width
-      if (newWidth > 600) newWidth = 600; // Maximum width
-      setSidebarWidth(newWidth);
-    };
-    const handleMouseUp = () => setIsResizing(false);
-    
-    if (isResizing) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-    }
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [isResizing]);
-
+  // Define the navigation routes based on App.jsx
   const navItems = [
-    { id: '/', icon: Home, label: "Home" },
+    { path: '/', label: 'Dashboard', icon: <Home size={20} /> },
     { 
-      id: '/discover', 
-      icon: Compass, 
-      label: "Discover",
+      path: '/discover', 
+      label: 'Discover', 
+      icon: <Compass size={20} />,
       children: [
-        { id: '/discover/introduction', icon: BookOpen, label: "Introduction" },
-        { id: '/discover/pathway', icon: Network, label: "Data Pathway" } 
+        { path: '/discover/introduction', label: 'Introduction', icon: <BookOpen size={18} /> },
+        { path: '/discover/pathway', label: 'Pathway Map', icon: <MapIcon size={18} /> }
       ]
     },
-    { id: '/library', icon: Library, label: "Library" },
+    { path: '/chat', label: 'AI Chat', icon: <MessageSquare size={20} /> },
+    { path: '/library', label: 'Library', icon: <Library size={20} /> },
   ];
-  
-  const toggleSubMenu = (itemId) => {
-    setExpandedMenus(prev => ({ ...prev, [itemId]: !prev[itemId] }));
-  };
-
-  const handleNavClick = (item) => {
-    if (item.children) {
-      toggleSubMenu(item.id);
-      if (!sidebarExtended) setSidebarExtended(true); 
-    } else {
-      navigate(item.id);
-    }
-  };
 
   return (
     <div 
-      style={{ width: sidebarExtended ? `${sidebarWidth}px` : '80px' }}
-      className={`flex flex-col h-full bg-[#1E1F20] p-3 border-r border-[#333] shrink-0 relative z-20 overflow-hidden
-        ${isResizing ? '' : 'transition-[width] duration-300 ease-in-out'}`}
+      className={`relative h-full flex flex-col border-r transition-all duration-300 z-50
+        bg-white dark:bg-[#131314] 
+        border-gray-200 dark:border-[#333]
+        ${isCollapsed ? 'w-20' : 'w-64'}`}
     >
-      
-      {/* --- DRAG HANDLE (Visible only when expanded) --- */}
-      {sidebarExtended && (
-        <div 
-          onMouseDown={(e) => { setIsResizing(true); e.preventDefault(); }}
-          className="absolute top-0 right-[-2px] w-3 h-full cursor-col-resize hover:bg-blue-500/30 transition-colors z-50 flex items-center justify-center group"
-        >
-           {/* Visual line indicator on hover */}
-           <div className="w-[1px] h-full bg-blue-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-        </div>
-      )}
+      {/* Toggle Collapse Button */}
+      <button 
+        onClick={() => setIsCollapsed(!isCollapsed)}
+        className="absolute -right-3 top-6 bg-white dark:bg-[#1E1F20] border border-gray-200 dark:border-[#333] rounded-full p-1 text-gray-500 hover:text-blue-500 dark:hover:text-blue-400 z-50 transition-colors shadow-sm"
+      >
+        {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+      </button>
 
-      {/* Global overlay to keep cursor styling while dragging rapidly */}
-      {isResizing && <div className="fixed inset-0 z-[100] cursor-col-resize" />}
-      
-      {/* --- Toggle Button --- */}
-      <div onClick={() => setSidebarExtended(!sidebarExtended)} className="cursor-pointer p-3 hover:bg-[#282A2C] rounded-full w-fit mb-4 shrink-0">
-        <Menu className="w-6 h-6 text-gray-400" />
+      {/* Logo Area */}
+      <div className="p-6 flex items-center justify-center border-b border-gray-200 dark:border-[#333] h-20 shrink-0">
+        <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-white shrink-0 shadow-lg shadow-blue-500/30">
+          E
+        </div>
+        {!isCollapsed && (
+          <span className="ml-3 font-black text-xl text-gray-900 dark:text-white tracking-widest uppercase transition-opacity">
+            Edu App
+          </span>
+        )}
       </div>
-      
-      {/* --- Navigation Items --- */}
-      <div className="flex flex-col gap-1 mb-6 flex-1 overflow-y-auto scrollbar-none">
+
+      {/* Navigation Links */}
+      <nav className="flex-1 overflow-y-auto py-6 px-3 space-y-2">
         {navItems.map((item) => {
-           const isActive = location.pathname === item.id || (item.children && location.pathname.startsWith(item.id));
-           const isExpanded = expandedMenus[item.id];
-           return (
-             <div key={item.id}>
-               <div onClick={() => handleNavClick(item)} className={`flex items-center gap-4 p-3 rounded-full cursor-pointer transition-colors ${isActive ? 'bg-[#004A77]/50 text-blue-100' : 'hover:bg-[#282A2C] text-gray-400'} ${!sidebarExtended && 'justify-center'}`}>
-                 <item.icon className="w-5 h-5 flex-shrink-0" />
-                 {sidebarExtended && (
-                   <>
-                     <span className="text-sm font-medium flex-1 whitespace-nowrap overflow-hidden text-ellipsis">{item.label}</span>
-                     {item.children && (isExpanded ? <ChevronDown size={14} className="shrink-0" /> : <ChevronRight size={14} className="shrink-0" />)}
-                   </>
-                 )}
-               </div>
-               {sidebarExtended && item.children && isExpanded && (
-                 <div className="ml-4 mt-1 space-y-1 border-l border-gray-700 pl-2">
-                   {item.children.map(child => (
-                     <div key={child.id} onClick={() => navigate(child.id)} className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors ${location.pathname === child.id ? 'bg-[#004A77] text-white' : 'text-gray-400 hover:text-gray-200 hover:bg-[#282A2C]'}`}>
-                       <child.icon size={16} className="shrink-0" />
-                       <span className="text-xs font-medium whitespace-nowrap overflow-hidden text-ellipsis">{child.label}</span>
-                     </div>
-                   ))}
-                 </div>
-               )}
-             </div>
-           );
+          // Check if current path matches the item's path exactly, or if it's a sub-route
+          const isParentActive = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
+          
+          return (
+            <div key={item.path}>
+              <Link
+                to={item.path}
+                title={isCollapsed ? item.label : ""}
+                className={`flex items-center px-3 py-3 rounded-xl transition-all duration-200 group
+                  ${isParentActive 
+                    ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 font-semibold' 
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#1E1F20] hover:text-gray-900 dark:hover:text-gray-200'
+                  }
+                `}
+              >
+                <div className={`${isCollapsed ? 'mx-auto' : 'mr-3'} transition-transform group-hover:scale-110`}>
+                  {item.icon}
+                </div>
+                {!isCollapsed && <span>{item.label}</span>}
+              </Link>
+
+              {/* Render Children if they exist and sidebar is not collapsed */}
+              {item.children && !isCollapsed && (
+                <div className="mt-1 ml-4 space-y-1 border-l-2 border-gray-100 dark:border-[#333] pl-2">
+                  {item.children.map((child) => {
+                    const isChildActive = location.pathname === child.path;
+                    return (
+                      <Link
+                        key={child.path}
+                        to={child.path}
+                        className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 text-sm
+                          ${isChildActive 
+                            ? 'text-blue-600 dark:text-blue-400 font-semibold bg-blue-50/50 dark:bg-blue-500/5' 
+                            : 'text-gray-500 dark:text-gray-500 hover:text-gray-900 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1E1F20]'
+                          }
+                        `}
+                      >
+                        <div className="mr-2 opacity-80">{child.icon}</div>
+                        <span>{child.label}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          );
         })}
-      </div>
-      
-      {/* --- Footer: User Profile & Logout --- */}
-      <div className="border-t border-[#333] pt-4 mt-2 shrink-0">
-          {sidebarExtended ? (
-              <div className="flex items-center justify-between px-2 overflow-hidden">
-                  <div className="flex items-center gap-3 overflow-hidden">
-                      <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center overflow-hidden shrink-0">
-                         {user?.picture ? (
-                           <img src={user.picture} alt="User" className="w-full h-full object-cover"/>
-                         ) : (
-                           <User size={16} />
-                         )}
-                      </div>
-                      <div className="overflow-hidden">
-                          <p className="text-sm font-medium text-white truncate w-full">
-                            {user?.name || user?.username || "Guest"}
-                          </p>
-                          <p className="text-[10px] text-gray-500 truncate w-full">
-                            {user?.email || "Online"}
-                          </p>
-                      </div>
-                  </div>
-                  <button onClick={logout} className="p-2 text-gray-400 hover:text-red-400 hover:bg-[#282A2C] rounded-full transition-colors shrink-0" title="Logout">
-                      <LogOut size={18} />
-                  </button>
-              </div>
-          ) : (
-              <div className="flex justify-center">
-                  <button onClick={logout} className="p-3 text-gray-400 hover:text-red-400 hover:bg-[#282A2C] rounded-full transition-colors shrink-0" title="Logout">
-                      <LogOut size={20} />
-                  </button>
-              </div>
-          )}
+      </nav>
+
+      {/* Bottom Actions (Theme Toggle & Logout) */}
+      <div className="p-4 border-t border-gray-200 dark:border-[#333] space-y-3 shrink-0">
+        
+        {/* The Theme Toggle component handles its own light/dark logic internally */}
+        <ThemeToggle isCollapsed={isCollapsed} />
+        
+        <button 
+          onClick={logout}
+          title={isCollapsed ? "Logout" : ""}
+          className={`flex items-center w-full px-3 py-3 rounded-xl transition-all duration-200 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10
+            ${isCollapsed ? 'justify-center' : ''}`}
+        >
+          <LogOut size={20} className={isCollapsed ? '' : 'mr-3'} />
+          {!isCollapsed && <span className="font-semibold">Logout</span>}
+        </button>
       </div>
     </div>
   );
