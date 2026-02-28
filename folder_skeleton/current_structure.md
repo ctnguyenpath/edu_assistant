@@ -1,7 +1,12 @@
+
 edu_assistant/
+├── .DS_Store
 ├── .env
-├── remove_system.bat
-├── start_all.bat
+├── .env.mac
+├── control_panel.bat
+├── control_panel.sh
+├── setup_instruction.md
+├── workflow.md
 └── __Init__.py
 ├── .vscode/
 │   └── settings.json
@@ -37,14 +42,15 @@ edu_assistant/
 │   │   └── __init__.py
 │   ├── routers/
 │   │   ├── data_ops_router.py
-│   │   ├── kb_router.py
 │   │   └── __init__.py
 │   ├── services/
 │   │   ├── gemini_service.py
 │   │   ├── loggers.py
 │   │   └── __init__.py
 │   ├── sql_syntax/
-│   │   ├── init_multiple_dbs.sql
+│   │   ├── 01b_course_relationships.sql
+│   │   ├── 01_init_schema.sql
+│   │   ├── 02_seed_data.sql
 │   │   └── __init__.py
 │   ├── tools/
 │   │   ├── find_id.py
@@ -65,7 +71,6 @@ edu_assistant/
 │   ├── docker_command.md
 │   └── management.yaml
 ├── folder_skeleton/
-│   ├── 20260220_file_structure.md
 │   ├── current_structure.md
 │   ├── folder_skeleton.py
 │   └── new_structure.md
@@ -75,13 +80,13 @@ edu_assistant/
 │   ├── dockerfile
 │   ├── eslint.config.js
 │   ├── index.html
-│   ├── package-lock.json
 │   ├── package.json
 │   ├── postcss.config.js
 │   ├── README.md
 │   ├── tailwind.config.js
 │   └── vite.config.js
 │   ├── public/
+│   │   ├── data_ways_curriculum.json
 │   │   └── vite.svg
 │   ├── src/
 │   │   ├── api.js
@@ -96,20 +101,29 @@ edu_assistant/
 │   │   │   ├── ChatInput.jsx
 │   │   │   ├── ChatInterface.jsx
 │   │   │   ├── chatMessage.jsx
-│   │   │   └── IconSend.jsx
-│   │   ├── context/
-│   │   │   └── AuthContext.jsx
+│   │   │   ├── IconSend.jsx
+│   │   │   └── ThemeToggle.jsx
+│   │   ├── contexts/
+│   │   │   ├── AuthContext.jsx
+│   │   │   └── ThemeContext.jsx
 │   │   ├── layouts/
-│   │   │   └── MainLayout.jsx
+│   │   │   ├── MainLayout.jsx
+│   │   │   └── Sidebar.jsx
+│   │   │   ├── panelpage/
+│   │   │   │   ├── ModuleDetailDashboard.jsx
+│   │   │   │   ├── ModuleDetailsPanel.jsx
+│   │   │   │   ├── ModuleListPanel.jsx
+│   │   │   │   └── PerformancePanel.jsx
 │   │   ├── pages/
 │   │   │   ├── DiscoverPage.jsx
 │   │   │   ├── HomePage.jsx
 │   │   │   ├── LoginPage.jsx
 │   │   │   ├── LoginPage_google.jsx
 │   │   │   └── VideoPlayer.jsx
-│   │   │   ├── datacourse/
-│   │   │   │   ├── IntroductionPage.jsx
-│   │   │   │   └── SqlCoursePage.jsx
+│   │   │   ├── discover/
+│   │   │   │   └── PathWay.jsx
+│   │   │   ├── program/
+│   │   │   │   └── IntroductionPage.jsx
 ├── official_ui/
 │   ├── dockerfile
 │   ├── index.html

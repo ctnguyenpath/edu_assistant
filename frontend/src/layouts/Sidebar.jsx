@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Home, 
   Compass, 
@@ -7,20 +7,37 @@ import {
   MessageSquare, 
   Library, 
   LogOut,
+  LogIn,
   ChevronLeft,
   ChevronRight,
   BookOpen
 } from 'lucide-react';
 
-import ThemeToggle from '../components/ThemeToggle'; // Adjust path if needed
+import ThemeToggle from '../components/ThemeToggle'; 
 import { useAuth } from '../contexts/AuthContext'; 
 
 const Sidebar = () => {
   const location = useLocation();
+  const navigate = useNavigate(); 
   const { logout } = useAuth(); 
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  // Define the navigation routes based on App.jsx
+  // Check if the user is logged in
+  const isLoggedIn = !!localStorage.getItem('token');
+
+  // --- LOGOUT HANDLER ---
+  const handleLogout = async () => {
+    try {
+      await logout(); 
+    } catch (e) {
+      console.error("Logout failed:", e);
+    } finally {
+      // Send the user to the Homepage instead of the login screen
+      navigate('/');
+    }
+  };
+
+  // Define the navigation routes based on the new folder skeleton
   const navItems = [
     { path: '/', label: 'Home', icon: <Home size={20} /> },
     { 
@@ -28,8 +45,17 @@ const Sidebar = () => {
       label: 'Discover', 
       icon: <Compass size={20} />,
       children: [
-        { path: '/discover/introduction', label: 'Introduction', icon: <BookOpen size={18} /> },
+        // Pathway Map grouped under /discover/ folder
         { path: '/discover/pathway', label: 'Pathway Map', icon: <MapIcon size={18} /> }
+      ]
+    },
+    {
+      path: '/program',
+      label: 'Programs',
+      icon: <BookOpen size={20} />,
+      children: [
+        // Introduction grouped under /program/ folder
+        { path: '/program/introduction', label: 'Introduction', icon: <BookOpen size={18} /> },
       ]
     },
     { path: '/chat', label: 'AI Chat', icon: <MessageSquare size={20} /> },
@@ -66,7 +92,6 @@ const Sidebar = () => {
       {/* Navigation Links */}
       <nav className="flex-1 overflow-y-auto py-6 px-3 space-y-2">
         {navItems.map((item) => {
-          // Check if current path matches the item's path exactly, or if it's a sub-route
           const isParentActive = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
           
           return (
@@ -115,21 +140,32 @@ const Sidebar = () => {
         })}
       </nav>
 
-      {/* Bottom Actions (Theme Toggle & Logout) */}
+      {/* Bottom Actions (Theme Toggle & Login/Logout) */}
       <div className="p-4 border-t border-gray-200 dark:border-[#333] space-y-3 shrink-0">
         
-        {/* The Theme Toggle component handles its own light/dark logic internally */}
         <ThemeToggle isCollapsed={isCollapsed} />
         
-        <button 
-          onClick={logout}
-          title={isCollapsed ? "Logout" : ""}
-          className={`flex items-center w-full px-3 py-3 rounded-xl transition-all duration-200 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10
-            ${isCollapsed ? 'justify-center' : ''}`}
-        >
-          <LogOut size={20} className={isCollapsed ? '' : 'mr-3'} />
-          {!isCollapsed && <span className="font-semibold">Logout</span>}
-        </button>
+        {isLoggedIn ? (
+          <button 
+            onClick={handleLogout} 
+            title={isCollapsed ? "Logout" : ""}
+            className={`flex items-center w-full px-3 py-3 rounded-xl transition-all duration-200 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10
+              ${isCollapsed ? 'justify-center' : ''}`}
+          >
+            <LogOut size={20} className={isCollapsed ? '' : 'mr-3'} />
+            {!isCollapsed && <span className="font-semibold">Logout</span>}
+          </button>
+        ) : (
+          <button 
+            onClick={() => navigate('/login')} 
+            title={isCollapsed ? "Login" : ""}
+            className={`flex items-center w-full px-3 py-3 rounded-xl transition-all duration-200 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-500/10
+              ${isCollapsed ? 'justify-center' : ''}`}
+          >
+            <LogIn size={20} className={isCollapsed ? '' : 'mr-3'} />
+            {!isCollapsed && <span className="font-semibold">Login</span>}
+          </button>
+        )}
       </div>
     </div>
   );

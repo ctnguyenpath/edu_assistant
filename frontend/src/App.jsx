@@ -9,7 +9,7 @@ import { chatService } from "./api";
 
 // --- CONTEXT ---
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { ThemeProvider } from './contexts/ThemeContext'; // <-- NEW: Import the Theme Provider
+import { ThemeProvider } from './contexts/ThemeContext'; 
 
 // --- LAYOUTS ---
 import MainLayout from './layouts/MainLayout';
@@ -20,9 +20,11 @@ import HomePage from './pages/HomePage';
 import DiscoverPage from './pages/DiscoverPage';
 import VideoPlayer from './pages/VideoPlayer';
 
-// --- COURSE PAGES ---
-import IntroductionPage from './pages/datacourse/IntroductionPage';
-import PathWay from './pages/datacourse/PathWay'; // Now serving "Ways of Working with Data"
+// --- UPDATED PAGE IMPORTS (New Skeleton) ---
+// IntroductionPage moved to pages/program/
+import IntroductionPage from './pages/program/IntroductionPage'; 
+// PathWay moved to pages/discover/
+import PathWay from './pages/discover/PathWay'; 
 
 // --- COMPONENTS ---
 import ChatInterface from './components/ChatInterface';
@@ -39,14 +41,12 @@ const ProtectedRoute = ({ children }) => {
 };
 
 // --- HELPER: Find Agent ID Dynamically ---
-// This prevents errors when Docker restarts and generates a new Agent ID
 async function getDynamicAgentId() {
   try {
     const response = await fetch(`${PARLANT_URL}/agents`);
     if (!response.ok) throw new Error("Failed to connect to Parlant");
     
     const agents = await response.json();
-    // Look for the agent named "Otto Carmen" (defined in your Python script)
     const targetAgent = agents.find(a => a.name === "Otto Carmen");
     
     return targetAgent ? targetAgent.id : null;
@@ -66,15 +66,12 @@ const App = () => {
   // --- CHAT STATE (PARLANT INTEGRATION) ---
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState([]);
-  const [sending, setSending] = useState(false); // Typing indicator
-  const [sessionId, setSessionId] = useState(null); // Dynamic Session ID
+  const [sending, setSending] = useState(false); 
+  const [sessionId, setSessionId] = useState(null); 
   
-  // Ref to control the polling loop safely
   const isPollingActive = useRef(false);
 
-  // --- SHARED ACTIONS ---
-
-  // 1. Fetch Videos 
+  // --- ACTIONS ---
   const fetchVideos = async () => {
     setLoadingVideos(true);
     try {
@@ -107,7 +104,6 @@ const App = () => {
     fetchVideos();
   }, []);
 
-  // 2. Poll for Agent Messages (Parlant Logic)
   useEffect(() => {
     if (!sessionId) {
       isPollingActive.current = false;
@@ -117,21 +113,15 @@ const App = () => {
     isPollingActive.current = true;
 
     async function pollForAgentMessages() {
-      console.log("Polling started for session:", sessionId);
-      
       while (isPollingActive.current) {
         try {
-          // Long-poll: waits up to 30s for new events
           const agentEvents = await chatService.pollForEvents(); 
-          
           if (agentEvents.length > 0) {
-            setSending(false); // Stop typing indicator
-            
+            setSending(false); 
             const newAgentMessages = agentEvents.map(e => ({
               role: "bot", 
               content: e.data.message
             }));
-            
             setMessages(prev => [...prev, ...newAgentMessages]);
           }
         } catch (err) {
@@ -141,51 +131,35 @@ const App = () => {
     }
 
     pollForAgentMessages();
-
-    return () => {
-      isPollingActive.current = false;
-    };
+    return () => { isPollingActive.current = false; };
   }, [sessionId]);
 
-  // 3. Handle Chat Sending 
   const handleSend = async () => {
     if (!input.trim()) return;
     
     const userText = input;
-    setInput(''); // Clear input immediately
+    setInput(''); 
     setMessages(prev => [...prev, { role: 'user', content: userText }]);
-    setSending(true); // Start typing indicator
+    setSending(true); 
 
     try {
       let currentSessionId = sessionId;
 
-      // Initialize session if it doesn't exist
       if (!currentSessionId) {
-        
-        // 1. Try to use the ID from config file
         let activeAgentId = AGENT_ID;
 
-        // 2. If config ID is missing or default, try to find it dynamically
         if (!activeAgentId || activeAgentId === "default_agent") {
-           console.log("Fetching Agent ID dynamically for 'Otto Carmen'...");
            const dynamicId = await getDynamicAgentId();
-           
            if (dynamicId) {
              activeAgentId = dynamicId;
-             console.log("Found Dynamic Agent ID:", activeAgentId);
            } else {
-             throw new Error("Could not find agent 'Otto Carmen'. Is the backend running?");
+             throw new Error("Could not find agent 'Otto Carmen'.");
            }
         }
-
-        // Create session via Parlant API
         const newSessionId = await chatService.createSession(activeAgentId);
         setSessionId(newSessionId);
       }
-
-      // Send message (fire-and-forget, polling handles the reply)
       await chatService.sendMessage(userText);
-
     } catch (error) {
       console.error("Send error:", error);
       setMessages(prev => [...prev, { role: 'bot', content: "Error: " + error.message, isError: true }]);
@@ -193,18 +167,10 @@ const App = () => {
     }
   };
 
-  // Bundle chat props
-  const chatProps = { 
-    messages, 
-    input, 
-    setInput, 
-    handleSend, 
-    loading: sending 
-  };
+  const chatProps = { messages, input, setInput, handleSend, loading: sending };
 
-  // --- RENDER ---
   return (
-    <ThemeProvider> {/* <-- NEW: Global Theme Wrapper */}
+    <ThemeProvider> 
       <AuthProvider>
         <Routes>
           {/* 1. Login Page */}
@@ -212,8 +178,6 @@ const App = () => {
 
           {/* 2. Main App Layout */}
           <Route element={<MainLayout />}>
-            
-            {/* PUBLIC PAGES */}
             <Route path="/" element={
               <HomePage 
                 videos={videos} 
@@ -230,10 +194,11 @@ const App = () => {
               />
             } />
 
-            {/* COURSE PAGES */}
-            <Route path="/discover/introduction" element={<IntroductionPage chatProps={chatProps} />} />
+            {/* --- UPDATED SEMANTIC ROUTES (New Skeleton) --- */}
+            {/* Introduction grouped under /program/ */}
+            <Route path="/program/introduction" element={<IntroductionPage chatProps={chatProps} />} />
             
-            {/* UPDATED THIS ROUTE: Changed path from /discover/sql to /discover/pathway */}
+            {/* Pathway Map grouped under /discover/ */}
             <Route path="/discover/pathway" element={<PathWay chatProps={chatProps} />} />
 
             {/* PROTECTED PAGES */}
@@ -245,7 +210,7 @@ const App = () => {
             
             <Route path="/library" element={
               <ProtectedRoute>
-                <div className="p-10 text-gray-400">Your Personal Library (Coming Soon)</div>
+                <div className="p-10 text-gray-400 font-medium">Your Personal Library (Coming Soon)</div>
               </ProtectedRoute>
             } />
 

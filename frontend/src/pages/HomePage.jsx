@@ -9,7 +9,7 @@ const HomePage = ({ onPlayVideo, videos = [] }) => {
   // --- STATE ---
   const [programGroups, setProgramGroups] = useState([]);
   const [selectedGroup, setSelectedGroup] = useState(null);
-  const [selectedPrograms, setSelectedPrograms] = useState([]); // Now stores whole programs, not individual modules
+  const [selectedPrograms, setSelectedPrograms] = useState([]); 
   const [isLoading, setIsLoading] = useState(true);
 
   // --- FETCH & AGGREGATE DYNAMIC DATA ---
@@ -31,17 +31,16 @@ const HomePage = ({ onPlayVideo, videos = [] }) => {
               groupId: groupId,
               title: groupName,
               icon: <Compass className="w-6 h-6 text-blue-500" />,
-              programsMap: {} // Temporary map to aggregate programs
+              programsMap: {} 
             };
           }
           
-          // 2. Extract the Program Name from the topic (e.g., "Core Foundation: Python" -> "Core Foundation")
+          // 2. Extract the Program Name from the topic
           const parts = item.topic.split(':');
           const programName = parts.length > 1 ? parts[0].trim() : "General Program";
           const subTopic = parts.length > 1 ? parts[1].trim() : item.topic;
           
           if (!groupsMap[groupId].programsMap[programName]) {
-            // Assign a relevant icon based on the program name
             let IconComponent = <GraduationCap className="w-5 h-5 text-indigo-500" />;
             if (programName.includes('Engineering')) IconComponent = <Database className="w-5 h-5 text-orange-500" />;
             else if (programName.includes('Analytics')) IconComponent = <Activity className="w-5 h-5 text-emerald-500" />;
@@ -50,8 +49,8 @@ const HomePage = ({ onPlayVideo, videos = [] }) => {
               id: programName,
               title: programName,
               icon: IconComponent,
-              moduleIds: [], // We will store all the underlying lesson IDs here
-              subTopics: [], // To display what is inside this program
+              moduleIds: [], 
+              subTopics: [], 
             };
           }
           
@@ -60,7 +59,7 @@ const HomePage = ({ onPlayVideo, videos = [] }) => {
           groupsMap[groupId].programsMap[programName].subTopics.push(subTopic);
         });
         
-        // Convert the nested maps back into flat arrays for rendering
+        // Convert the nested maps back into flat arrays
         const formattedGroups = Object.values(groupsMap).map(g => ({
           ...g,
           programs: Object.values(g.programsMap)
@@ -109,10 +108,11 @@ const HomePage = ({ onPlayVideo, videos = [] }) => {
     // Save to local storage for the Pathway map to read
     localStorage.setItem('pending_pathway', JSON.stringify({
       groupId: selectedGroup,
-      modules: allSelectedModuleIds // Passes [1, 2, 3, 4, 5, 6] etc.
+      modules: allSelectedModuleIds 
     }));
     
-    // Route to the Pathway page
+    // --- UPDATED NAVIGATION ---
+    // Directs to the discover/ folder as per new skeleton
     navigate('/discover/pathway');
   };
 
@@ -124,9 +124,19 @@ const HomePage = ({ onPlayVideo, videos = [] }) => {
         <h1 className="text-4xl font-medium text-gray-900 dark:text-gray-100 mb-4 transition-colors duration-300">
           Design your learning journey
         </h1>
-        <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mb-6">
+        <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl">
           Explore our available programs below. Select the tracks you are interested in, or ask the <strong>Chatbot</strong> in the corner for personalized advice!
         </p>
+        <div className="mt-6">
+          <button 
+            // --- UPDATED NAVIGATION ---
+            // Directs to the program/ folder as per new skeleton
+            onClick={() => navigate('/program/introduction')}
+            className="text-blue-600 dark:text-blue-400 font-medium hover:underline flex items-center gap-2"
+          >
+            <BookOpen className="w-4 h-4" /> View Program Introduction Videos
+          </button>
+        </div>
       </div>
       
       {/* --- PROGRAM SELECTION LIST --- */}

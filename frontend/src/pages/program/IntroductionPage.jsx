@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   List, RefreshCw, ChevronLeft, PanelLeft, Play, BookOpen, GripHorizontal, ExternalLink 
 } from 'lucide-react';
@@ -6,6 +7,7 @@ import ChatInterface from '../../components/ChatInterface';
 import { MINIO_BASE_URL, BUCKET_NAME } from '../../config'; 
 
 const IntroductionPage = ({ chatProps }) => {
+  const navigate = useNavigate();
   // --- 1. PERSISTENT STATE INITIALIZATION ---
   
   // Sidebar: Check localStorage, default to true
@@ -147,6 +149,9 @@ const IntroductionPage = ({ chatProps }) => {
         {/* Sidebar */}
         <div className={`${isSidebarOpen ? 'w-72 border-r' : 'w-0 border-r-0'} bg-gray-50 dark:bg-[#1E1F20] border-gray-200 dark:border-[#333] flex flex-col transition-all duration-300 ease-in-out overflow-hidden`}>
            <div className="p-3 border-b border-gray-200 dark:border-[#333] flex justify-between items-center bg-gray-50 dark:bg-[#1E1F20] min-w-[18rem] transition-colors duration-300">
+             <button onClick={() => navigate('/')} className="mr-2 text-gray-500 hover:text-blue-600 transition-colors" title="Back to Home">
+               <ChevronLeft className="w-4 h-4" />
+             </button>
              <span className="text-gray-600 dark:text-gray-400 text-xs font-bold uppercase flex items-center gap-2">
                <BookOpen className="w-3 h-3 text-blue-500 dark:text-blue-400"/> Intro Module ({videos.length})
              </span>

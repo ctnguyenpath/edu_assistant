@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Star, GripHorizontal, Network, RefreshCw, Undo2, ListPlus, 
   ChevronUp, X, Move, Trophy, LayoutDashboard, Map as MapIcon, 
@@ -28,12 +29,13 @@ const CollapsedSidebar = ({ title, icon, onClick, isRightSide }) => (
 );
 
 const PathWay = () => {
+  const navigate = useNavigate();
   const pathWayRef = useRef(null);
   const mapContainerRef = useRef(null);
   const tempLineRef = useRef(null);
 
   // --- 1. STATE ---
-  // MOCK AUTH STATE: In a real app, replace this with your AuthContext or Redux state
+  // MOCK AUTH STATE: Toggle this to test Guest vs Logged In views
   const [isLoggedIn, setIsLoggedIn] = useState(false); 
 
   const [syllabusData, setSyllabusData] = useState([]);
@@ -77,13 +79,12 @@ const PathWay = () => {
     if (pendingStr) {
       try {
         const pendingData = JSON.parse(pendingStr);
-        // If the user selected modules on the homepage, and the canvas is empty, auto-generate a suggested map!
         if (pendingData.modules && pendingData.modules.length > 0 && customNodes.length === 0) {
           const suggestedNodes = pendingData.modules.map((id, index) => ({
             id,
-            x: 150 + (index % 3) * 280, // Stagger them nicely
+            x: 150 + (index % 3) * 280, 
             y: 250 + Math.floor(index / 3) * 160,
-            parentIds: index > 0 ? [pendingData.modules[index - 1]] : ['START'] // Auto-link them linearly
+            parentIds: index > 0 ? [pendingData.modules[index - 1]] : ['START'] 
           }));
           setCustomNodes(suggestedNodes);
         }
@@ -121,8 +122,6 @@ const PathWay = () => {
   const handleConfirmPath = async () => {
     try {
       let connectionsMade = 0;
-      
-      // Loop through all custom nodes and save their relationships
       for (const node of customNodes) {
         const parents = node.parentIds || [];
         for (const parentId of parents) {
@@ -142,15 +141,14 @@ const PathWay = () => {
       }
 
       alert("Success! Your learning pathway has been saved to your account.");
-      localStorage.removeItem('pending_pathway'); // Clear the pending state
-      fetchData(); // Refresh to pull standard DB state if needed
+      localStorage.removeItem('pending_pathway'); 
+      fetchData(); 
       
     } catch (err) {
       console.error("Failed to save path:", err);
       alert("Error saving pathway. Please check your connection.");
     }
   };
-
 
   const getScoreColor = (label) => {
     if (label === 'Excellence') return 'border-emerald-500 text-emerald-500 bg-emerald-500/10 shadow-[0_0_15px_rgba(16,185,129,0.3)]';
@@ -160,12 +158,14 @@ const PathWay = () => {
     return 'border-gray-300 dark:border-[#333] text-gray-500 bg-white dark:bg-[#1E1F20]';
   };
 
-  const currentPerf = performanceData.find(p => p.module_id === activeLesson?.lesson);
+  // Only calculate performance if the user is actually logged in
+  const currentPerf = isLoggedIn ? performanceData.find(p => p.module_id === activeLesson?.lesson) : null;
 
   const dashboardData = useMemo(() => {
     if (!syllabusData.length) return [];
     return syllabusData.map(mod => {
-      const perf = performanceData.find(p => p.module_id === mod.lesson);
+      // Hide scores entirely if not logged in
+      const perf = isLoggedIn ? performanceData.find(p => p.module_id === mod.lesson) : null;
       return {
         module_id: mod.lesson,
         topic_name: mod.topic,
@@ -174,7 +174,7 @@ const PathWay = () => {
         grade_label: perf?.grade_label ?? null
       };
     });
-  }, [syllabusData, performanceData]);
+  }, [syllabusData, performanceData, isLoggedIn]);
 
   // --- 5. HTML5 DRAG & DROP LOGIC ---
   const handleDragStart = (e, lessonId) => {
@@ -416,13 +416,16 @@ const PathWay = () => {
               onSelectModule={setActiveLesson}
             />
           </div>
-          <PerformancePanel 
-            isOpen={openPanels.performance} 
-            onToggle={() => setOpenPanels(p => ({...p, performance: !p.performance}))}
-            activeLesson={activeLesson}
-            currentPerf={currentPerf}
-            getScoreColor={getScoreColor}
-          />
+          {/* ONLY Render Performance Panel if User is Logged In */}
+          {isLoggedIn && (
+            <PerformancePanel 
+              isOpen={openPanels.performance} 
+              onToggle={() => setOpenPanels(p => ({...p, performance: !p.performance}))}
+              activeLesson={activeLesson}
+              currentPerf={currentPerf}
+              getScoreColor={getScoreColor}
+            />
+          )}
           <div onMouseDown={(e) => { setIsResizingList(true); e.preventDefault(); }} className="absolute top-0 right-[-4px] w-2 h-full cursor-col-resize hover:bg-blue-500/50 transition-colors z-50" />
         </div>
       ) : (
@@ -433,6 +436,12 @@ const PathWay = () => {
         
         {/* TOP NAV OVERLAY */}
         <div className="absolute top-6 right-6 z-50 flex gap-3 items-center">
+          <button 
+            onClick={() => navigate('/')}
+            className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-[#1E1F20] hover:bg-gray-100 dark:hover:bg-[#333] text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-[#333] rounded-xl text-xs font-bold transition-all shadow-sm"
+          >
+            <ChevronLeft size={14} /> Home
+          </button>
           
           {/* MOCK AUTH TOGGLE FOR TESTING */}
           <button 
@@ -486,7 +495,6 @@ const PathWay = () => {
                       <span className="text-gray-500 text-sm">Create an account to save your learning journey.</span>
                     </div>
                     <button 
-                      // In your real app, this should be: navigate('/login?redirect=/pathway')
                       onClick={() => setIsLoggedIn(true)} 
                       className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-bold transition-colors whitespace-nowrap shadow-lg shadow-blue-500/30"
                     >
@@ -557,7 +565,9 @@ const PathWay = () => {
                   {/* Module Nodes */}
                   {nodesToRender.map((lesson) => {
                     const isActive = activeLesson?.lesson === lesson.lesson;
-                    const perf = performanceData.find(p => p.module_id === lesson.lesson);
+                    
+                    // ONLY fetch the performance color if the user is actually logged in
+                    const perf = isLoggedIn ? performanceData.find(p => p.module_id === lesson.lesson) : null;
                     const { x, y } = isCustomizing ? { x: lesson.customX, y: lesson.customY } : getDefaultMapCoordinates(lesson.col, lesson.row);
                     
                     return (
